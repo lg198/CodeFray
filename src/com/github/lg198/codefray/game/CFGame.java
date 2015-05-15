@@ -41,6 +41,9 @@ public class CFGame implements Game {
         Collections.shuffle(golems);
         for (CFGolem g : golems) {
             controllerMap.get(g.getTeam()).onRound(new CFGolemWrapper(round, g));
+            if (g.isHoldingFlag() && g.getLocation().equals(map.getWinPoint(g.getTeam()))) {
+                //TODO: WIN GAME
+            }
         }
         ListIterator<CFGolem> gi = golems.listIterator();
         while (gi.hasNext()) {
@@ -102,6 +105,11 @@ public class CFGame implements Game {
     @Override
     public Team[] getTeams() {
         return teams;
+    }
+
+    @Override
+    public Point getWinLocation(Team t) {
+        return map.getWinPoint(t);
     }
 
 

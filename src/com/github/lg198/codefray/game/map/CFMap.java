@@ -5,17 +5,22 @@ import com.github.lg198.codefray.api.math.Point;
 import com.github.lg198.codefray.api.math.Vector;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CFMap {
 
     private final MapTile[][] map;
     private final int width, height;
+    private final Map<Team, Point> winPoints;
 
-    public CFMap(MapTile[][] m) {
+
+    public CFMap(MapTile[][] m, Map<Team, Point> wp) {
         map = m;
         width = map.length;
         height = map[0].length;
+        winPoints = wp;
     }
 
     public void setTile(Point p, MapTile mt) {
@@ -79,6 +84,10 @@ public class CFMap {
             }
         }
         return null;
+    }
+
+    public Point getWinPoint(Team t) {
+        return winPoints.get(t);
     }
     
 }
