@@ -1,7 +1,7 @@
 
 package com.github.lg198.codefray.game.golem;
 
-import com.github.lg198.codefray.api.game.Direction;
+import com.github.lg198.codefray.api.math.Direction;
 import com.github.lg198.codefray.api.game.Game;
 import com.github.lg198.codefray.api.game.Team;
 import com.github.lg198.codefray.api.golem.Golem;
@@ -23,7 +23,7 @@ public final class CFGolemWrapper implements Golem {
     
     private void check() {
         if (golem.getGame().getRound() != round) {
-            //Found cheater
+            //TODO: Cheater!
         }
     }
 
@@ -58,10 +58,17 @@ public final class CFGolemWrapper implements Golem {
     }
 
     @Override
-    public boolean hasFlag() {
+    public Team getHeldFlag() {
         check();
-        return golem.hasFlag();
+        return golem.getHeldFlag();
     }
+
+    @Override
+    public boolean isHoldingFlag() {
+        check();
+        return golem.isHoldingFlag();
+    }
+
 
     @Override
     public int getHealth() {
@@ -73,6 +80,12 @@ public final class CFGolemWrapper implements Golem {
     public List<GolemInfo> search() {
         check();
         return golem.search();
+    }
+
+    @Override
+    public Direction getFlagDirection(Team t) {
+        check();
+        return golem.getFlagDirection(t);
     }
 
     @Override
@@ -98,5 +111,17 @@ public final class CFGolemWrapper implements Golem {
         check();
         return golem.getShotsLeft();
     }
-    
+
+    @Override
+    public boolean isWall(Direction d) {
+        check();
+        return false;
+    }
+
+    @Override
+    public boolean isGolem(Direction d) {
+        check();
+        return false;
+    }
+
 }
