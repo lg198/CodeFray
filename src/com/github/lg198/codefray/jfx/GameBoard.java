@@ -81,7 +81,7 @@ public class GameBoard {
                     return;
                 }
                 if (e.getEventType() == MouseEvent.MOUSE_CLICKED && !dragged) {
-                    System.out.println(clickToCell(e.getX(), e.getY()));
+                    Point p = clickToCell(e.getX(), e.getY());
                     return;
                 }
                 dragged = true;
