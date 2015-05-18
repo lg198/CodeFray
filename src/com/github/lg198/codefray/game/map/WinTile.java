@@ -4,12 +4,12 @@ import com.github.lg198.codefray.api.game.Team;
 import com.github.lg198.codefray.api.game.TileType;
 import com.github.lg198.codefray.game.golem.CFGolem;
 
-public class FlagTile extends MapTile implements GolemHabitat {
+public class WinTile extends MapTile implements GolemHabitat {
 
-    private final Team team;
+    private Team team;
 
-    public FlagTile(Team t) {
-        super(TileType.FLAG);
+    public WinTile(Team t) {
+        super(TileType.WIN);
         team = t;
     }
 
@@ -19,15 +19,11 @@ public class FlagTile extends MapTile implements GolemHabitat {
 
     @Override
     public boolean onGolemMove(CFGolem g) {
-        if (g.getTeam() == team) {
+        if (g.getTeam() != team || !g.isHoldingFlag()) {
             return false;
         }
 
-        if (g.isHoldingFlag()) {
-            return false;
-        }
-
-        g.setHasFlag(team);
+        //TODO: WIN GAME!
         return true;
     }
 }

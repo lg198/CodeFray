@@ -1,6 +1,7 @@
 
 package com.github.lg198.codefray.game.golem;
 
+import com.github.lg198.codefray.api.game.TileType;
 import com.github.lg198.codefray.api.math.Direction;
 import com.github.lg198.codefray.api.game.Game;
 import com.github.lg198.codefray.api.game.Team;
@@ -30,6 +31,7 @@ public class CFGolem extends MapTile implements Golem {
 
 
     public CFGolem(CFGame g, GolemType t, Team te, int i) {
+        super(TileType.GOLEM);
         game = g;
         type = t;
         id = i;
@@ -111,7 +113,7 @@ public class CFGolem extends MapTile implements Golem {
     @Override
     public void move(Direction d) {
         if (movesLeft-- <= 0) {
-            //TODO: CHEATER!
+            return;
         }
         game.getMap().move(getLocation(), getLocation().in(d));
     }
@@ -124,7 +126,7 @@ public class CFGolem extends MapTile implements Golem {
     @Override
     public void shoot(GolemInfo gi) {
         if (shotsLeft-- <= 0) {
-            //TODO: CHEATER!
+            return;
         }
         CFGolemInfoWrapper wrapper = (CFGolemInfoWrapper) gi;
         double max = getType().getMaxSearchRadiusSquared();
@@ -139,15 +141,12 @@ public class CFGolem extends MapTile implements Golem {
     }
 
     @Override
-    public boolean isWall(Direction d) {
+    public TileType detectTile(Direction d) {
         MapTile mt = game.getMap().getTile(getLocation().in(d));
-        return mt != null && (mt instanceof WallTile);
-    }
-
-    @Override
-    public boolean isGolem(Direction d) {
-        MapTile mt = game.getMap().getTile(getLocation().in(d));
-        return mt != null && (mt instanceof CFGolem);
+        if (mt == null) {
+            return TileType.EMPTY;
+        }
+        return mt.getTileType();
     }
 
 }

@@ -5,6 +5,7 @@ import com.github.lg198.codefray.api.game.Team;
 import com.github.lg198.codefray.api.golem.GolemInfo;
 import com.github.lg198.codefray.api.golem.GolemType;
 import com.github.lg198.codefray.api.math.Point;
+import com.github.lg198.codefray.game.CFGame;
 
 public class CFGolemInfoWrapper implements GolemInfo {
 
@@ -18,7 +19,7 @@ public class CFGolemInfoWrapper implements GolemInfo {
 
     private void check() {
         if (golem.getGame().getRound() != round) {
-            //TODO: Cheater!
+            ((CFGame)golem.getGame()).stop();
         }
     }
 

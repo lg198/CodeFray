@@ -1,6 +1,7 @@
 
 package com.github.lg198.codefray.game.golem;
 
+import com.github.lg198.codefray.api.game.TileType;
 import com.github.lg198.codefray.api.math.Direction;
 import com.github.lg198.codefray.api.game.Game;
 import com.github.lg198.codefray.api.game.Team;
@@ -8,6 +9,8 @@ import com.github.lg198.codefray.api.golem.Golem;
 import com.github.lg198.codefray.api.golem.GolemInfo;
 import com.github.lg198.codefray.api.golem.GolemType;
 import com.github.lg198.codefray.api.math.Point;
+import com.github.lg198.codefray.game.CFGame;
+
 import java.util.List;
 
 
@@ -23,7 +26,7 @@ public final class CFGolemWrapper implements Golem {
     
     private void check() {
         if (golem.getGame().getRound() != round) {
-            //TODO: Cheater!
+            ((CFGame)golem.getGame()).stop();
         }
     }
 
@@ -113,15 +116,9 @@ public final class CFGolemWrapper implements Golem {
     }
 
     @Override
-    public boolean isWall(Direction d) {
+    public TileType detectTile(Direction d) {
         check();
-        return false;
-    }
-
-    @Override
-    public boolean isGolem(Direction d) {
-        check();
-        return false;
+        return golem.detectTile(d);
     }
 
 }
