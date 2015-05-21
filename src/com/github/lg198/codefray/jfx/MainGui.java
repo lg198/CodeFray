@@ -3,15 +3,12 @@ package com.github.lg198.codefray.jfx;
 import com.github.lg198.codefray.game.CFGame;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.SplitPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 
 public class MainGui {
 
     private CFGame game;
-    private OptionsPanel panel;
+    public OptionsPanel panel;
     private GameBoard board;
 
     public MainGui(CFGame g) {
@@ -20,19 +17,18 @@ public class MainGui {
         panel = new OptionsPanel(game);
     }
 
-    public HBox build() {
-        HBox sp = new HBox();
+    public AnchorPane build() {
+        AnchorPane ap = new AnchorPane();
         VBox p = panel.build();
-        //p.prefWidthProperty().bind(sp.widthProperty().divide(3));
         Canvas c = board.build();
-        VBox cb = new VBox();
-        cb.getChildren().add(c);
-        c.heightProperty().bind(cb.heightProperty());
-        c.widthProperty().bind(cb.widthProperty());
+        c.heightProperty().bind(ap.heightProperty());
+        c.widthProperty().bind(ap.widthProperty().add(p.widthProperty().negate()));
 
-        cb.prefWidthProperty().bind(sp.widthProperty().multiply(2d/3));
-        sp.getChildren().addAll(cb, p);
-        return sp;
+        ap.getChildren().add(c);
+        AnchorPane.setRightAnchor(p, 0d);
+        ap.getChildren().add(p);
+
+        return ap;
     }
 
     public void update() {

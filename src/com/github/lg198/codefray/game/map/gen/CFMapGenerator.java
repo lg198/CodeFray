@@ -22,7 +22,7 @@ public class CFMapGenerator {
         MapTile[][] tiles = new MapTile[width][height];
         int rheight = (int) (height/2) + 1;
 
-        Generator gen = new Generator(mrand, new PreparationFilter());
+        Generator gen = new Generator(mrand, new PreparationFilter(), new FillerFilter());
 
         gen.generate(tiles, width, rheight);
         copyTopToBottomFlipped(tiles, height/2);
@@ -46,6 +46,7 @@ public class CFMapGenerator {
                 }
                 tiles[tiles.length - x - 1][height + height - y - 1] = mt;
             }
+
         }
     }
 

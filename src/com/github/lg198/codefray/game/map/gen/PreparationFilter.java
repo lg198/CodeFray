@@ -18,7 +18,7 @@ public class PreparationFilter extends GenFilter {
         int we = lr ? (int) (width/3d) : width;
 
         int fx = r.nextInt(we - ws - 1) + ws;
-        int fy = r.nextInt(thirdHeight + 1);
+        int fy = r.nextInt(thirdHeight);
 
         int wx = width - fx;
 

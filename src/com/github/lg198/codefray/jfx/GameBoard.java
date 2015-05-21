@@ -12,6 +12,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -80,11 +81,25 @@ public class GameBoard {
                     otx = transx; oty = transy;
                     return;
                 }
-                if (e.getEventType() == MouseEvent.MOUSE_CLICKED && !dragged) {
-                    Point p = clickToCell(e.getX(), e.getY());
-                    return;
+                if (e.getEventType() == MouseEvent.MOUSE_CLICKED) {
+                    if (!dragged && game.isPaused()) {
+                        Point p = clickToCell(e.getX(), e.getY());
+                        redraw();
+                        if (game.getMap().getTile(p) instanceof CFGolem) {
+                            game.getGui().panel.golemSelected((CFGolem) game.getMap().getTile(p));
+                            highlightCell(p);
+                        } else {
+                            game.getGui().panel.removeGolemBox();
+                        }
+
+                        return;
+                    }
+                    render.setCursor(Cursor.DEFAULT);
                 }
-                dragged = true;
+                if (!dragged) {
+                    render.setCursor(Cursor.CLOSED_HAND);
+                    dragged = true;
+                }
                 transx = otx + (e.getX() - dx);
                 transy = oty + (e.getY() - dy);
 
@@ -137,6 +152,13 @@ public class GameBoard {
         return render.getGraphicsContext2D();
     }
 
+    private void translateToCell(Point p, boolean padding) {
+        gc().save();
+        double pad = gridSize/10;
+        double ipad = padding ? pad : 0;
+        gc().translate(ipad + p.getX()*(gridSize+pad), ipad + p.getY()*(gridSize+pad));
+    }
+
     public void redraw() {
         gc().clearRect(0, 0, render.getWidth(), render.getHeight());
 
@@ -153,8 +175,8 @@ public class GameBoard {
 
         for (int x = 0; x < game.getMap().getWidth(); x++) {
             for (int y = 0; y < game.getMap().getHeight(); y++) {
-                gc().save();
-                gc().translate(pad + x*(gridSize+pad), pad + y*(gridSize+pad));
+                Point p = new Point(x, y);
+                translateToCell(p, true);
                 renderCell(new Point(x, y));
                 gc().restore();
             }
@@ -194,6 +216,21 @@ public class GameBoard {
             gc().setFill(wt.getTeam() == Team.RED ? Color.RED : Color.BLUE);
             gc().fillRect(0, 0, gridSize, gridSize);
         }
+    }
+
+    private void highlightCell(Point p) {
+        translateToCell(p, false);
+        gc().translate(transx, transy);
+
+        double pad = gridSize/10;
+
+        gc().setFill(Color.GOLD);
+        gc().fillRect(0, 0, pad*2 + gridSize, pad); //Top
+        gc().fillRect(pad + gridSize, 0, pad, pad*2 + gridSize); //Right
+        gc().fillRect(0, pad + gridSize, pad*2 + gridSize, pad); //Bottom
+        gc().fillRect(0, 0, pad, pad*2 + gridSize); //Left
+
+        gc().restore();
     }
 
     public void update() {

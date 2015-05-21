@@ -2,6 +2,7 @@ package com.github.lg198.codefray.jfx;
 
 import com.github.lg198.codefray.api.game.Team;
 import com.github.lg198.codefray.game.CFGame;
+import com.github.lg198.codefray.game.golem.CFGolem;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -9,11 +10,15 @@ import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+
+import java.util.ListIterator;
 
 public class OptionsPanel {
 
@@ -39,6 +44,8 @@ public class OptionsPanel {
     }
 
     public VBox build() {
+        vbox.setSpacing(20);
+        vbox.setPadding(new Insets(10));
         vbox.getChildren().add(buildGameBox());
 
         Label speedLabel = new Label("Clock Speed:");
@@ -137,5 +144,63 @@ public class OptionsPanel {
         gp.getColumnConstraints().addAll(cc, cc);
 
         return gp;
+    }
+
+    public GridPane buildGolemBox(CFGolem g) {
+        GridPane gp = new GridPane();
+        gp.setPadding(new Insets(10));
+        gp.setStyle("-fx-border-color: black; -fx-border-width: 4px");
+        gp.setHgap(6);
+        gp.setVgap(10);
+
+        Label title = new Label("Selected Golem:");
+        title.setStyle("-fx-font-size: 20px");
+        GridPane.setHalignment(title, HPos.CENTER);
+        gp.add(title, 0, 0, 2, 1);
+
+        Label id = new Label("Id:");
+        id.setStyle("-fx-font-size: 16px");
+        Label idtext = new Label(""+g.getId());
+        idtext.setStyle("-fx-font-size: 16px; -fx-text-fill: aquamarine");
+        GridPane.setHalignment(id, HPos.RIGHT);
+        GridPane.setHalignment(idtext, HPos.LEFT);
+        gp.add(id, 0, 1);
+        gp.add(idtext, 1, 1);
+
+        Label team = new Label(g.getTeam().name().substring(0, 1) + g.getTeam().name().substring(1).toLowerCase());
+        team.setStyle("-fx-font-size: 16px; -fx-text-fill: " + g.getTeam().name());
+        GridPane.setHalignment(team, HPos.CENTER);
+        gp.add(team, 0, 2, 2, 1);
+
+        ProgressBar health = new ProgressBar((double) g.getHealth() / (double) g.getType().getMaxHealth());
+        health.setPrefHeight(16);
+        health.setStyle("-fx-accent: " + g.getTeam().name().toLowerCase());
+        GridPane.setHalignment(health, HPos.CENTER);
+        gp.add(health, 0, 3, 2, 1);
+
+        gp.getProperties().put("golemBox", true);
+
+        ColumnConstraints cc = new ColumnConstraints();
+        cc.setPercentWidth(50);
+        gp.getColumnConstraints().addAll(cc, cc);
+
+
+        return gp;
+    }
+
+    public void removeGolemBox() {
+        ListIterator<Node> ni = vbox.getChildren().listIterator();
+        while (ni.hasNext()) {
+            Node n = ni.next();
+            if (n.getProperties().containsKey("golemBox")) {
+                ni.remove();
+            }
+        }
+    }
+
+    public void golemSelected(CFGolem g) {
+        removeGolemBox();
+
+        vbox.getChildren().add(buildGolemBox(g));
     }
 }

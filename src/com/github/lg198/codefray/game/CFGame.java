@@ -109,6 +109,7 @@ public class CFGame implements Game {
     public void unpause() {
         paused = false;
         clock.unpause();
+        gui.panel.removeGolemBox();
     }
 
     public void stop() {
