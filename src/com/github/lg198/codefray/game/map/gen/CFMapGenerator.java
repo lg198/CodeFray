@@ -8,14 +8,19 @@ import com.github.lg198.codefray.game.map.*;
 
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class CFMapGenerator {
 
+    private static final AtomicLong longGenerator = new AtomicLong(868680);
 
     public static CFMap generate(int width, int height) {
-        long seed = System.nanoTime();
+        long seed = System.nanoTime() + longGenerator.getAndIncrement();
+        return generate(width, height, seed);
+    }
+
+    public static CFMap generate(int width, int height, long seed) {
         Random mrand = new Random(seed);
-        System.out.println("Seed: " + seed);
         if (height%2!=0) {
             throw new IllegalArgumentException("Height must be even!");
         }
@@ -27,7 +32,7 @@ public class CFMapGenerator {
         gen.generate(tiles, width, rheight);
         copyTopToBottomFlipped(tiles, height/2);
 
-        return new CFMap(tiles);
+        return new CFMap(tiles, seed);
     }
 
 

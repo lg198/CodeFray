@@ -6,6 +6,7 @@ import com.github.lg198.codefray.api.golem.GolemInfo;
 import com.github.lg198.codefray.api.golem.GolemType;
 import com.github.lg198.codefray.api.math.Point;
 import com.github.lg198.codefray.game.CFGame;
+import com.github.lg198.codefray.game.GameEndReason;
 
 public class CFGolemInfoWrapper implements GolemInfo {
 
@@ -19,7 +20,7 @@ public class CFGolemInfoWrapper implements GolemInfo {
 
     private void check() {
         if (golem.getGame().getRound() != round) {
-            ((CFGame)golem.getGame()).stop();
+            ((CFGame)golem.getGame()).stop(new GameEndReason.Infraction(golem.getTeam(), GameEndReason.Infraction.Type.OUT_OF_ROUND));
         }
     }
 

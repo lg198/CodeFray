@@ -14,6 +14,7 @@ public class CFMap {
 
     private final MapTile[][] map;
     private final int width, height;
+    private final long seed;
     public int getHeight() {
         return height;
     }
@@ -22,10 +23,16 @@ public class CFMap {
     }
 
 
-    public CFMap(MapTile[][] m) {
+    public CFMap(MapTile[][] m, long s) {
         map = m;
         width = map.length;
         height = map[0].length;
+
+        seed = s;
+    }
+
+    public long getSeed() {
+        return seed;
     }
 
     public void setTile(Point p, MapTile mt) {

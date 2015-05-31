@@ -70,17 +70,16 @@ public class OptionsPanel {
         return vbox;
     }
 
-    private GridPane buildGameBox() {
-        GridPane gp = new GridPane();
-        gp.setPadding(new Insets(10));
-        gp.setStyle("-fx-border-color: black; -fx-border-width: 4px");
-        gp.setHgap(6);
-        gp.setVgap(10);
+    private VBox buildGameBox() {
+        VBox box = new VBox();
+        box.setPadding(new Insets(10));
+        box.setStyle("-fx-border-color: black; -fx-border-width: 4px");
+        box.setSpacing(10);
+        box.setAlignment(Pos.CENTER);
 
         Label title = new Label("Current Game:");
         title.setStyle("-fx-font-size: 20px");
-        GridPane.setHalignment(title, HPos.CENTER);
-        gp.add(title, 0, 0, 2, 1);
+        box.getChildren().add(title);
 
         HBox roundBox = new HBox();
         roundBox.setSpacing(6);
@@ -89,7 +88,7 @@ public class OptionsPanel {
         round.setStyle("-fx-font-size: 14px");
         roundNumber.setStyle("-fx-font-size: 15px; -fx-text-fill: lightblue; -fx-font-weight: bold");
         roundBox.getChildren().addAll(round, roundNumber);
-        gp.add(roundBox, 0, 1, 2, 1);
+        box.getChildren().add(roundBox);
 
         VBox healthv = new VBox();
         healthv.setAlignment(Pos.CENTER);
@@ -111,8 +110,7 @@ public class OptionsPanel {
         redhealthh.getChildren().addAll(new Label("Red Health:"), redHealth);
         bluehealthh.getChildren().addAll(new Label("Blue Health:"), blueHealth);
         healthv.getChildren().addAll(redhealthh, bluehealthh);
-        GridPane.setHalignment(healthv, HPos.CENTER);
-        gp.add(healthv, 0, 2, 2, 1);
+        box.getChildren().add(healthv);
 
         final Button pauseButton = new Button("Pause");
         pauseButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -131,19 +129,17 @@ public class OptionsPanel {
         stopButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                game.stop();
+                game.stop(null);
             }
         });
 
-        GridPane.setHalignment(pauseButton, HPos.RIGHT);
-        gp.add(pauseButton, 0, 3);
-        GridPane.setHalignment(stopButton, HPos.LEFT);
-        gp.add(stopButton, 1, 3);
-        ColumnConstraints cc = new ColumnConstraints();
-        cc.setPercentWidth(50);
-        gp.getColumnConstraints().addAll(cc, cc);
+        HBox buttons = new HBox();
+        buttons.setSpacing(6);
+        buttons.setAlignment(Pos.CENTER);
+        buttons.getChildren().addAll(pauseButton, stopButton);
+        box.getChildren().add(buttons);
 
-        return gp;
+        return box;
     }
 
     public GridPane buildGolemBox(CFGolem g) {

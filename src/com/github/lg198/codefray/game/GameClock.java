@@ -5,6 +5,8 @@ public class GameClock {
     private ClockThread thread = new ClockThread();
     private Runnable runnable;
 
+    private long startTime = 0, currentTime = 0;
+
     public GameClock(Runnable r) {
         runnable = r;
     }
@@ -13,17 +15,21 @@ public class GameClock {
         thread.delay = d;
     }
 
-    public void stop() {
+    public long stop() {
         thread.running = false;
+        currentTime += System.currentTimeMillis() - startTime;
+        return currentTime;
     }
 
     public void start() {
         thread.running = true;
         thread.setDaemon(true);
         thread.start();
+        startTime = System.currentTimeMillis();
     }
 
     public void pause() {
+        currentTime += System.currentTimeMillis() - startTime;
         thread.paused = true;
     }
 
@@ -32,6 +38,7 @@ public class GameClock {
         synchronized (thread.pauseLock) {
             thread.pauseLock.notify();
         }
+        startTime = System.currentTimeMillis();
     }
 
     private class ClockThread extends Thread {

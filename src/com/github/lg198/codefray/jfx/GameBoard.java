@@ -11,26 +11,13 @@ import com.github.lg198.codefray.game.map.WinTile;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.scene.Cursor;
-import javafx.scene.Group;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.RectangleBuilder;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextBuilder;
-import org.w3c.dom.css.Rect;
 
 public class GameBoard {
 
@@ -44,7 +31,7 @@ public class GameBoard {
         game = g;
 
         testsprite = new Image(
-                GameBoard.class.getResource("/com/github/lg198/codefray/res/testsprite.png").toExternalForm(),
+                ResourceManager.getIcon("testsprite.png"),
                 32, 32, true, true);
     }
 

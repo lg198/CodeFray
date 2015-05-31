@@ -11,6 +11,7 @@ import java.util.zip.ZipFile;
 
 public class Loader {
 
+
     public GolemController load(File f) {
         if (!f.getName().endsWith(".jar")) {
             throw new LoadException("File supplied is not a jarfile!");

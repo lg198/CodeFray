@@ -12,6 +12,7 @@ import com.github.lg198.codefray.game.golem.CFGolemWrapper;
 import com.github.lg198.codefray.game.map.CFMap;
 import com.github.lg198.codefray.game.map.FlagTile;
 import com.github.lg198.codefray.game.map.WinTile;
+import com.github.lg198.codefray.jfx.CodeFrayApplication;
 import com.github.lg198.codefray.jfx.MainGui;
 import com.github.lg198.codefray.jfx.OptionsPanel;
 import javafx.animation.KeyFrame;
@@ -19,6 +20,7 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.util.Duration;
 
+import java.io.File;
 import java.util.*;
 
 
@@ -29,6 +31,7 @@ public class CFGame implements Game {
     private final Team[] teams;
     private final Map<Team, GolemController> controllerMap;
     private final MainGui gui;
+    private GameLog log;
 
     private volatile boolean running = false;
     private volatile boolean paused = false;
@@ -37,17 +40,32 @@ public class CFGame implements Game {
 
     private GameClock clock;
 
+    private int totalHealth;
+
     public CFGame(CFMap m, Map<Team, GolemController> cm) {
         map = m;
         teams = Team.values();
         controllerMap = cm;
         gui = new MainGui(this);
+
+        File folder = new File(System.getProperty("user.home"), ".codefray_v1");
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+        log = new GameLog(this, folder);
+    }
+
+    public GolemController getController(Team t) {
+        return controllerMap.get(t);
     }
 
     public boolean isRunning() {
         return running;
     }
-    public boolean isPaused() { return paused;}
+
+    public boolean isPaused() {
+        return paused;
+    }
 
     public CFMap getMap() {
         return map;
@@ -70,15 +88,22 @@ public class CFGame implements Game {
             }
         }
 
-        for (int i = getMap().getWidth()-1; i >= 0; i--) {
-            if (getMap().getTile(new Point(i, getMap().getHeight()-1)) == null) {
-                getMap().setTile(new Point(i, getMap().getHeight()-1), g2);
+        for (int i = getMap().getWidth() - 1; i >= 0; i--) {
+            if (getMap().getTile(new Point(i, getMap().getHeight() - 1)) == null) {
+                getMap().setTile(new Point(i, getMap().getHeight() - 1), g2);
                 break;
             }
         }
 
         golems.add(g1);
         golems.add(g2);
+
+        for (CFGolem g : golems) {
+            if (g.getTeam() != Team.RED) {
+                continue;
+            }
+            totalHealth += g.getType().getMaxHealth();
+        }
 
         clock = new GameClock(new Runnable() {
             @Override
@@ -112,9 +137,33 @@ public class CFGame implements Game {
         gui.panel.removeGolemBox();
     }
 
-    public void stop() {
+    public GameStatistics stop(GameEndReason reason) {
         running = false;
-        clock.stop();
+        long time = clock.stop();
+        final GameStatistics s = new GameStatistics();
+        s.rounds = round;
+        int rcount = 0, bcount = 0;
+        for (CFGolem g : golems) {
+            if (g.getTeam() == Team.RED) {
+                rcount++;
+            } else {
+                bcount++;
+            }
+        }
+        s.redLeft = rcount;
+        s.blueLeft = bcount;
+        s.redHealthPercent = getPercentHealth(Team.RED);
+        s.blueHealthPercent = getPercentHealth(Team.BLUE);
+        s.reason = reason;
+        s.timeInSeconds = time / 1000;
+
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                CodeFrayApplication.switchToResult(s, log.getLogFile());
+            }
+        });
+        return s;
     }
 
     public void onRound() {
@@ -122,6 +171,9 @@ public class CFGame implements Game {
         for (CFGolem g : golems) {
             g.update();
             controllerMap.get(g.getTeam()).onRound(new CFGolemWrapper(round, g));
+            if (!running) { //TO STOP GAME IN MIDDLE OF ROUND
+                break;
+            }
         }
         ListIterator<CFGolem> gi = golems.listIterator();
         while (gi.hasNext()) {
@@ -137,7 +189,8 @@ public class CFGame implements Game {
 
         for (Team t : teams) {
             if (getPercentHealth(t) == 0d) {
-                //TODO: WIN!
+                stop(new GameEndReason.Win(t == Team.RED ? Team.BLUE : Team.RED, GameEndReason.Win.Reason.DEATH));
+                return;
             }
         }
 
@@ -200,13 +253,12 @@ public class CFGame implements Game {
     }
 
     public double getPercentHealth(Team t) {
-        int tmh = 0, th = 0;
+        int th = 0;
         for (CFGolem g : golems) {
-            tmh += g.getTeam()==t ? g.getType().getMaxHealth() : 0;
-            th += g.getTeam()==t ? g.getHealth() : 0;
+            th += g.getTeam() == t ? g.getHealth() : 0;
         }
 
-        return (double) th/tmh;
+        return (double) th / totalHealth;
     }
 
 
