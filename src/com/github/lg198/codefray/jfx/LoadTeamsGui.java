@@ -8,9 +8,8 @@ import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.geometry.Side;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -18,6 +17,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 
 import java.io.File;
 
@@ -76,6 +76,9 @@ public class LoadTeamsGui {
         grid.add(blueBox, 1, 1);
         GridPane.setHgrow(blueBox, Priority.ALWAYS);
 
+        createContextMenu(redBrowseButton, redField);
+        createContextMenu(blueBrowseButton, blueField);
+
         HBox bottom = new HBox();
         bottom.setAlignment(Pos.CENTER_RIGHT);
         bottom.setSpacing(10);
@@ -116,6 +119,41 @@ public class LoadTeamsGui {
         });
 
         return bp;
+    }
+
+    public void createContextMenu(final Button b, final TextField tf) {
+        final ContextMenu menu = new ContextMenu();
+
+        MenuItem fileItem = new MenuItem("Load from File...");
+        fileItem.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                FileChooser chooser = new FileChooser();
+                chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JAR", "*.jar"));
+                File f = chooser.showOpenDialog(null);
+                if (f == null) {
+                    return;
+                }
+                tf.setText(f.getAbsolutePath());
+            }
+        });
+
+        MenuItem chooseItem = new MenuItem("Load from Included...");
+        chooseItem.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                //TODO: LOAD FROM INCLUDED
+            }
+        });
+
+        menu.getItems().addAll(fileItem, chooseItem);
+
+        b.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                menu.show(b, Side.RIGHT, 2, 2);
+            }
+        });
     }
 
 }
