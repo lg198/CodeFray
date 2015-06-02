@@ -1,23 +1,26 @@
 package com.github.lg198.codefray.jfx;
 
 import com.github.lg198.codefray.api.golem.GolemController;
+import com.github.lg198.codefray.controllers.PackagedControllers;
 import com.github.lg198.codefray.load.LoadException;
 import com.github.lg198.codefray.load.Loader;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.util.Callback;
 
 import java.io.File;
 
@@ -93,10 +96,18 @@ public class LoadTeamsGui {
             public void handle(ActionEvent actionEvent) {
                 GolemController red, blue;
                 try {
-                    red = loader.load(new File(redField.getText()));
-                    if (red == null) {
-                        warningLabel.setText("Could not load red team!");
-                        return;
+                    if (redField.getText().startsWith("?[PRELOADED]:")) {
+                        if (!PackagedControllers.controllers.containsKey(redField.getText().substring(13))) {
+                            warningLabel.setText("Red Team Error: The specified controller is not included");
+                            return;
+                        }
+                        red = PackagedControllers.controllers.get(redField.getText().substring(13));
+                    } else {
+                        red = loader.load(new File(redField.getText()));
+                        if (red == null) {
+                            warningLabel.setText("Could not load red team!");
+                            return;
+                        }
                     }
                 } catch (LoadException e) {
                     warningLabel.setText("Red Team Error: " + e.getMessage());
@@ -104,10 +115,18 @@ public class LoadTeamsGui {
                 }
 
                 try {
-                    blue = loader.load(new File(blueField.getText()));
-                    if (blue == null) {
-                        warningLabel.setText("Could not load blue team!");
-                        return;
+                    if (blueField.getText().startsWith("?[PRELOADED]:")) {
+                        if (!PackagedControllers.controllers.containsKey(blueField.getText().substring(13))) {
+                            warningLabel.setText("Blue Team Error: The specified controller is not included");
+                            return;
+                        }
+                        blue = PackagedControllers.controllers.get(blueField.getText().substring(13));
+                    } else {
+                        blue = loader.load(new File(blueField.getText()));
+                        if (blue == null) {
+                            warningLabel.setText("Could not load blue team!");
+                            return;
+                        }
                     }
                 } catch (LoadException e) {
                     warningLabel.setText("Blue Team Error: " + e.getMessage());
@@ -142,7 +161,7 @@ public class LoadTeamsGui {
         chooseItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                //TODO: LOAD FROM INCLUDED
+                showChooseControllerDialog(tf);
             }
         });
 
@@ -154,6 +173,43 @@ public class LoadTeamsGui {
                 menu.show(b, Side.RIGHT, 2, 2);
             }
         });
+    }
+
+    public void showChooseControllerDialog(final TextField tf) {
+        final Stage stage = new Stage();
+        stage.setTitle("Choose a Controller");
+        StackPane sp = new StackPane();
+        final ListView<String> lv = new ListView<>(FXCollections.observableArrayList(PackagedControllers.controllers.keySet()));
+        lv.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        lv.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
+            @Override
+            public ListCell<String> call(ListView<String> stringListView) {
+                ListCell<String> s = new ListCell<String>() {
+                    @Override
+                    protected void updateItem(String str, boolean empty) {
+                        super.updateItem(str, empty);
+                        setText(str);
+                    }
+                };
+                s.setAlignment(Pos.CENTER);
+                return s;
+            }
+        });
+        lv.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                String controller = lv.getSelectionModel().getSelectedItem();
+                if (controller == null) {
+                    return;
+                }
+                tf.setText("?[PRELOADED]:" + controller);
+                stage.close();
+            }
+        });
+        sp.getChildren().add(lv);
+        Scene sc = new Scene(sp, 300, 200);
+        stage.setScene(sc);
+        stage.show();
     }
 
 }

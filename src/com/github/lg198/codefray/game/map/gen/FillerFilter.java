@@ -42,15 +42,20 @@ public class FillerFilter extends GenFilter {
                 if (d.getYChange()*2 + y >= 0 && d.getYChange()*2 + y < map[0].length){
                     int cx = x+d.getXChange()*2, cy = y+d.getYChange()*2;
                     map[cx][cy] = null;
-                    if (cx < x+2 && cy == y-2) { //top => right
-                        map[cx+1][cy] = null;
-                    } else if (cy < y +2 && cx == x+2) { // right => down
-                        map[cx][cy+1] = null;
-                    } else if (cx > x+2 && cy == y+2) { //bottom => left
-                        map[cx-1][cy] = null;
-                    } else if (cy > y+2 && cx == x-2) { //left => up
-                        map[cx][cy - 1] = null;
-                    }
+                    try {
+                        if (cx < x + 2 && cy == y - 2) { //top => right
+                            map[cx + 1][cy] = null;
+                        }
+                        if (cy < y + 2 && cx == x + 2) { //right => down
+                            map[cx][cy + 1] = null;
+                        }
+                        if (cx > x - 2 && cy == y + 2) { //bottom => left
+                            map[cx - 1][cy] = null;
+                        }
+                        if (cy > y - 2 && cx == x - 2) { //left => up
+                            map[cx][cy - 1] = null;
+                        }
+                    } catch (IndexOutOfBoundsException e) {}
                 }
             }
         }

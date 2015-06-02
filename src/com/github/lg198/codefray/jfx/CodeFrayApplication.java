@@ -4,6 +4,8 @@ import com.github.lg198.codefray.api.game.Team;
 import com.github.lg198.codefray.api.golem.Golem;
 import com.github.lg198.codefray.api.golem.GolemController;
 import com.github.lg198.codefray.api.math.Direction;
+import com.github.lg198.codefray.controllers.PackagedControllers;
+import com.github.lg198.codefray.controllers.defaultc.DefaultController;
 import com.github.lg198.codefray.game.CFGame;
 import com.github.lg198.codefray.game.GameStatistics;
 import com.github.lg198.codefray.game.map.CFMap;
@@ -25,6 +27,7 @@ import java.util.Map;
 public class CodeFrayApplication extends Application {
 
     public static void main(String[] args) {
+        PackagedControllers.init();
         launch(args);
     }
 
