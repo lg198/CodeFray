@@ -34,6 +34,8 @@ public class LoadTeamsGui {
     private Button submit = new Button("Start Game");
     private Label warningLabel = new Label();
 
+    private TextField seedField = new TextField();
+
     public LoadTeamsGui(Loader l) {
         loader = l;
 
@@ -79,6 +81,11 @@ public class LoadTeamsGui {
         grid.add(blueBox, 1, 1);
         GridPane.setHgrow(blueBox, Priority.ALWAYS);
 
+        grid.add(new Label("Map Seed:"), 0, 2);
+        grid.add(seedField, 1, 2);
+        HBox.setHgrow(seedField, Priority.ALWAYS);
+        seedField.setPromptText("Optional (long) seed");
+
         createContextMenu(redBrowseButton, redField);
         createContextMenu(blueBrowseButton, blueField);
 
@@ -88,7 +95,7 @@ public class LoadTeamsGui {
         bottom.getChildren().addAll(warningLabel, submit);
         warningLabel.setTextFill(Color.RED);
         HBox.setHgrow(warningLabel, Priority.ALWAYS);
-        grid.add(bottom, 0, 2, 2, 1);
+        grid.add(bottom, 0, 3, 2, 1);
         GridPane.setMargin(bottom, new Insets(10, 0, 0, 0));
 
         submit.setOnAction(new EventHandler<ActionEvent>() {
@@ -132,8 +139,15 @@ public class LoadTeamsGui {
                     warningLabel.setText("Blue Team Error: " + e.getMessage());
                     return;
                 }
-
-                CodeFrayApplication.switchToGame(red, blue);
+                if (seedField.getText().isEmpty()) {
+                    CodeFrayApplication.switchToGame(red, blue);
+                } else {
+                    if (!seedField.getText().matches("[0-9][0-9]*")) {
+                        warningLabel.setText("The seed must be a long!");
+                        return;
+                    }
+                    CodeFrayApplication.switchToGame(red, blue, seedField.getText());
+                }
             }
         });
 

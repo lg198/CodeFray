@@ -20,6 +20,7 @@ public class CFMapGenerator {
     }
 
     public static CFMap generate(int width, int height, long seed) {
+        System.out.println(seed);
         Random mrand = new Random(seed);
         if (height%2!=0) {
             throw new IllegalArgumentException("Height must be even!");
@@ -27,10 +28,10 @@ public class CFMapGenerator {
         MapTile[][] tiles = new MapTile[width][height];
         int rheight = (int) (height/2) + 1;
 
-        Generator gen = new Generator(mrand, new PreparationFilter(), new FillerFilter());
+        Generator gen = new Generator(mrand, new PreparationFilter(), new FillerFilter(), new CarveFilter());
 
         gen.generate(tiles, width, rheight);
-        copyTopToBottomFlipped(tiles, height/2);
+        copyTopToBottom(tiles, height / 2);
 
         return new CFMap(tiles, seed);
     }
@@ -50,6 +51,25 @@ public class CFMapGenerator {
                     }
                 }
                 tiles[tiles.length - x - 1][height + height - y - 1] = mt;
+            }
+
+        }
+    }
+
+    private static void copyTopToBottom(MapTile[][] tiles, int height) {
+        for (int x = 0; x < tiles.length; x++) {
+            for (int y = 0; y < height; y++) {
+                MapTile mt = tiles[x][y];
+                if (mt != null) {
+                    if (mt instanceof FlagTile) {
+                        FlagTile ft = (FlagTile) mt;
+                        mt = new FlagTile(ft.getTeam() == Team.RED ? Team.BLUE : Team.RED);
+                    } else if (mt instanceof WinTile) {
+                        WinTile wt = (WinTile) mt;
+                        mt = new WinTile(wt.getTeam() == Team.RED ? Team.BLUE : Team.RED);
+                    }
+                }
+                tiles[x][height + height - y - 1] = mt;
             }
 
         }

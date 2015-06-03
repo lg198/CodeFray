@@ -46,8 +46,13 @@ public class CodeFrayApplication extends Application {
         stage.show();
     }
 
-    private static void startGame(Stage stage, GolemController red, GolemController blue) {
-        CFMap testMap = CFMapGenerator.generate(40, 40);
+    private static void startGame(Stage stage, GolemController red, GolemController blue, String seed) {
+        CFMap testMap;
+        if (seed == null) {
+            testMap = CFMapGenerator.generate(40, 40);
+        } else {
+            testMap = CFMapGenerator.generate(40, 40, Long.parseLong(seed));
+        }
         Map<Team, GolemController> cmap = new HashMap<Team, GolemController>();
         cmap.put(Team.RED, red);
         cmap.put(Team.BLUE, blue);
@@ -62,7 +67,12 @@ public class CodeFrayApplication extends Application {
 
     public static void switchToGame(GolemController red, GolemController blue) {
         primaryStage.hide();
-        startGame(primaryStage, red, blue);
+        startGame(primaryStage, red, blue, null);
+    }
+
+    public static void switchToGame(GolemController red, GolemController blue, String seed) {
+        primaryStage.hide();
+        startGame(primaryStage, red, blue, seed);
     }
 
     public static void switchToResult(GameStatistics stats, File logFile) {
