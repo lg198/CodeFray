@@ -8,12 +8,18 @@ import com.github.lg198.codefray.game.map.MapTile;
 import java.util.*;
 
 public class PathFilter extends GenFilter {
+
+    int width, height;
+    MapTile[][] map;
+
     @Override
     public void filter(Random r, MapTile[][] map, int width, int height, Map props) {
-
+        this.width = width;
+        this.height = height;
+        this.map = map;
     }
 
-    public void path(Point from, Point to) {
+    private void path(Point from, Point to) {
         Queue<Point> pathQueue = new LinkedList<>();
         pathQueue.add(from);
         Map<Point, Point> cameFrom = new HashMap<>();
@@ -27,15 +33,27 @@ public class PathFilter extends GenFilter {
                 if (!cameFrom.containsKey(p1)) {
                     pathQueue.add(p1);
                     cameFrom.put(p1, p);
-                    //TODO: FINISH ALGORITHM. THIS PART IS DONE, BUT PATH MUST BE MADE
-                    /*current = goal
-                    path = [current]
-                    while current != start:
-                    current = came_from[current]
-                    path.append(current)
-                    path.reverse()*/
                 }
             }
         }
+
+        Point current = to;
+        List<Point> path = new ArrayList<>();
+        path.add(current);
+        while (!current.equals(from)) {
+            current = cameFrom.get(current);
+            path.add(0, current);
+        }
+        clearPath(path);
+    }
+
+    private void clearPath(List<Point> path) {
+        for (Point p : path) {
+
+        }
+    }
+
+    private void clearCircle(Point p, int r) {
+        
     }
 }
