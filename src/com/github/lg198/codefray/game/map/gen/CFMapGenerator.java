@@ -1,12 +1,10 @@
 package com.github.lg198.codefray.game.map.gen;
 
 import com.github.lg198.codefray.api.game.Team;
-import com.github.lg198.codefray.api.math.Direction;
 import com.github.lg198.codefray.api.math.Point;
 import com.github.lg198.codefray.api.math.Vector;
 import com.github.lg198.codefray.game.map.*;
 
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -28,7 +26,11 @@ public class CFMapGenerator {
         MapTile[][] tiles = new MapTile[width][height];
         int rheight = (int) (height/2) + 1;
 
-        Generator gen = new Generator(mrand, new PreparationFilter(), new FillerFilter(), new CarveFilter());
+        Generator gen = new Generator(mrand,
+                new PreparationFilter(),
+                new FillerFilter(),
+                new PointSelectionFilter(),
+                new CleanupFilter());
 
         gen.generate(tiles, width, rheight);
         copyTopToBottom(tiles, height / 2);

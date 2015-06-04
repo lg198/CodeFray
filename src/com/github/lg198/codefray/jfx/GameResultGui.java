@@ -3,6 +3,7 @@ package com.github.lg198.codefray.jfx;
 import com.github.lg198.codefray.api.game.Team;
 import com.github.lg198.codefray.game.GameEndReason;
 import com.github.lg198.codefray.game.GameStatistics;
+import com.github.lg198.codefray.util.TimeFormatter;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -33,7 +34,7 @@ public class GameResultGui {
         root.getChildren().addAll(
                 createWinnerStatBox(stats.reason),
                 createStatBox("Rounds:", "" + stats.rounds),
-                createStatBox("Length:", stats.timeInSeconds + " seconds"),
+                createStatBox("Length:", TimeFormatter.format(stats.timeInSeconds)),
                 createStatBox("Red Golems Left:", "" + stats.redLeft),
                 createStatBox("Blue Golems Left:", "" + stats.blueLeft),
                 createStatBox("Red Health:", stats.redHealthPercent, Team.RED),

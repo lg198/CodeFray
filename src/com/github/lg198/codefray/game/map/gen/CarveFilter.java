@@ -21,7 +21,7 @@ public class CarveFilter extends GenFilter {
         this.random = r;
         this.map = map;
 
-        for (int i = 0; i < (int) ((width*height)*0.07); i++) {
+        for (int i = 0; i < (int) ((width * height) * 0.05); i++) {
             int rx = random.nextInt(width);
             int ry = random.nextInt(height);
             if (!(map[rx][ry] instanceof WallTile)) {

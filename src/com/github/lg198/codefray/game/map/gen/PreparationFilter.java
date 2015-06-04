@@ -1,6 +1,7 @@
 package com.github.lg198.codefray.game.map.gen;
 
 import com.github.lg198.codefray.api.game.Team;
+import com.github.lg198.codefray.api.math.Point;
 import com.github.lg198.codefray.game.map.FlagTile;
 import com.github.lg198.codefray.game.map.MapTile;
 import com.github.lg198.codefray.game.map.WinTile;
@@ -20,9 +21,12 @@ public class PreparationFilter extends GenFilter {
         int fx = r.nextInt(we - ws - 1) + ws;
         int fy = r.nextInt(thirdHeight);
 
-        int wx = width - fx;
+        int wx = width - fx - 1;
 
         map[fx][fy] = new FlagTile(Team.RED);
         map[wx][fy] = new WinTile(Team.RED);
+
+        props.put("flagLocation", new Point(fx, fy));
+        props.put("winLocation", new Point(wx, fy));
     }
 }
