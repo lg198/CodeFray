@@ -1,24 +1,17 @@
 package com.github.lg198.codefray.jfx;
 
 import com.github.lg198.codefray.api.game.Team;
-import com.github.lg198.codefray.api.golem.Golem;
 import com.github.lg198.codefray.api.golem.GolemController;
-import com.github.lg198.codefray.api.math.Direction;
 import com.github.lg198.codefray.controllers.PackagedControllers;
 import com.github.lg198.codefray.controllers.defaultc.DefaultController;
 import com.github.lg198.codefray.game.CFGame;
 import com.github.lg198.codefray.game.GameStatistics;
 import com.github.lg198.codefray.game.map.CFMap;
 import com.github.lg198.codefray.game.map.gen.CFMapGenerator;
-import com.github.lg198.codefray.load.Loader;
 import javafx.application.Application;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.HBox;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 
 import java.io.File;
 import java.util.HashMap;
@@ -39,11 +32,14 @@ public class CodeFrayApplication extends Application {
     public void start(Stage stage) {
         primaryStage = stage;
 
-        Loader l = new Loader();
+
+       /* Loader l = new Loader();
         LoadTeamsGui gui = new LoadTeamsGui(l);
         Scene sc = new Scene(gui.build());
         stage.setScene(sc);
-        stage.show();
+        stage.show();*/
+
+        switchToGame(new DefaultController(), new DefaultController());
     }
 
     private static void startGame(Stage stage, GolemController red, GolemController blue, String seed) {

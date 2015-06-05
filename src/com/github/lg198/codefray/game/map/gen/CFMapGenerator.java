@@ -30,7 +30,7 @@ public class CFMapGenerator {
                 new PreparationFilter(),
                 new FillerFilter(),
                 new PointSelectionFilter(),
-                new CleanupFilter());
+                new PathFilter());
 
         gen.generate(tiles, width, rheight);
         copyTopToBottom(tiles, height / 2);

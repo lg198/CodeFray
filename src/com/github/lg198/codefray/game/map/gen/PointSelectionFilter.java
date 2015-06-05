@@ -2,6 +2,7 @@ package com.github.lg198.codefray.game.map.gen;
 
 import com.github.lg198.codefray.api.math.Direction;
 import com.github.lg198.codefray.api.math.Point;
+import com.github.lg198.codefray.api.math.Vector;
 import com.github.lg198.codefray.game.map.MapTile;
 
 import java.util.ArrayList;
@@ -14,11 +15,22 @@ public class PointSelectionFilter extends GenFilter {
 
     @Override
     public void filter(Random r, MapTile[][] map, int width, int height, Map props) {
-        int num = (int) (width * height * 0.05);
+        int num = (int) (width * height * 0.005);
+        int spread = (int) Math.pow((width * height * 0.01), 2);
+        System.out.println("Generating " + num + " points...");
         List<Point> specials = new ArrayList<>();
+        outerLoop:
         for (int round = 0; round < num; round++) {
             int rx = r.nextInt(width), ry = r.nextInt(height);
-            specials.add(new Point(rx, ry));
+            Point p1 = new Point(rx, ry);
+            for (Point p2 : specials) {
+                if (Vector.between(p1, p2).getMagnitudeSquared() < spread) {
+                    round--;
+                    continue outerLoop;
+                }
+            }
+            specials.add(p1);
+            System.out.println("adding " + p1);
         }
         props.put("tunnelPoints", specials);
 

@@ -1,12 +1,14 @@
 package com.github.lg198.codefray.game;
 
-import com.github.lg198.codefray.api.game.Team;
 import com.github.lg198.codefray.api.math.Direction;
 import com.github.lg198.codefray.api.math.Point;
 import com.github.lg198.codefray.game.golem.CFGolem;
 import com.github.lg198.codefray.game.map.CFMap;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Date;
 
 public class GameLog {
@@ -61,8 +63,9 @@ public class GameLog {
 
     private void logGameStart(CFMap map) {
         log.println("=== CodeFray Version 1 [Capture the Flag] Official Game Log ===\n");
-        log.println("[Red Team Controller: " + quote(game.getController(Team.RED).getIdString()) + "]");
-        log.println("[Blue Team Controller: " + quote(game.getController(Team.BLUE).getIdString()) + "]");
+        //TODO: FIX ANNOTATION STUFF
+        //log.println("[Red Team Controller: " + quote(game.getController(Team.RED).getIdString()) + "]");
+        //log.println("[Blue Team Controller: " + quote(game.getController(Team.BLUE).getIdString()) + "]");
         log.println();
         log.println("> Game started.");
         log.println("> Using map [seed: " + map.getSeed() + "]");
