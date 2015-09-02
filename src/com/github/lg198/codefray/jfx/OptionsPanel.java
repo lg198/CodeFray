@@ -49,10 +49,10 @@ public class OptionsPanel {
         vbox.getChildren().add(buildGameBox());
 
         Label speedLabel = new Label("Clock Speed:");
-        speedSlider.setMin(30);
-        speedSlider.setMax(120);
-        speedSlider.setBlockIncrement(10);
-        speedSlider.setValue(45);
+        speedSlider.setMin(60);
+        speedSlider.setMax(150);
+        speedSlider.setBlockIncrement(5);
+        speedSlider.setValue(105);
         speedSlider.valueProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> val, Number n1, Number n2) {

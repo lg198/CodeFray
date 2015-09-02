@@ -18,7 +18,7 @@ public class FlagTile extends MapTile implements GolemHabitat {
     }
 
     @Override
-    public boolean onGolemMove(CFGolem g) {
+    public boolean onGolemEnter(CFGolem g) {
         if (g.getTeam() == team) {
             return false;
         }

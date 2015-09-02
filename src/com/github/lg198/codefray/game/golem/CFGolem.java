@@ -17,7 +17,7 @@ import com.github.lg198.codefray.game.map.WallTile;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CFGolem extends MapTile implements Golem {
+public class CFGolem implements Golem {
 
     private final CFGame game;
     private final GolemType type;
@@ -29,9 +29,10 @@ public class CFGolem extends MapTile implements Golem {
 
     private int shotsLeft, movesLeft;
 
+    private Point location;
+
 
     public CFGolem(CFGame g, GolemType t, Team te, int i) {
-        super(TileType.GOLEM);
         game = g;
         type = t;
         id = i;
@@ -69,9 +70,11 @@ public class CFGolem extends MapTile implements Golem {
         return id;
     }
 
-    @Override
     public Point getLocation() {
-        return getMapPosition();
+        return location;
+    }
+    public void setLocation(Point p) {
+        location = p;
     }
 
     @Override
@@ -97,7 +100,7 @@ public class CFGolem extends MapTile implements Golem {
     @Override
     public List<GolemInfo> search() {
         List<GolemInfo> ret = new ArrayList<GolemInfo>();
-        for (CFGolem g : game.getMap().getTilesOfType(CFGolem.class, getLocation(), getType().getMaxSearchRadiusSquared())) {
+        for (CFGolem g : game.searchGolems(this, type.getMaxSearchRadiusSquared())) {
             ret.add(new CFGolemInfoWrapper(g, getGame().getRound()));
         }
         return ret;
@@ -112,10 +115,13 @@ public class CFGolem extends MapTile implements Golem {
 
     @Override
     public void move(Direction d) {
-        if (movesLeft-- <= 0) {
+        if (movesLeft <= 0) {
             return;
         }
-        game.getMap().move(getLocation(), getLocation().in(d));
+        if (game.getMap().isGolemMoveValid(this, d)) {
+            setLocation(getLocation().in(d));
+            movesLeft--;
+        }
     }
 
     @Override
@@ -142,7 +148,12 @@ public class CFGolem extends MapTile implements Golem {
 
     @Override
     public TileType detectTile(Direction d) {
-        MapTile mt = game.getMap().getTile(getLocation().in(d));
+        Point p = getLocation().in(d);
+        if (p.getX() < 0 || p.getX() >= game.getMap().getWidth() ||
+                p.getY() < 0 || p.getY() >= game.getMap().getHeight()) {
+            return null;
+        }
+        MapTile mt = game.getMap().getTile(p);
         if (mt == null) {
             return TileType.EMPTY;
         }

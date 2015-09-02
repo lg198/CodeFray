@@ -1,6 +1,8 @@
 package com.github.lg198.codefray.load;
 
+import com.github.lg198.codefray.api.golem.ControllerDef;
 import com.github.lg198.codefray.api.golem.GolemController;
+import com.github.lg198.codefray.game.golem.CFGolemController;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,16 +11,16 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-public class Loader {
+public class ControllerLoader {
 
 
-    public GolemController load(File f) {
+    public CFGolemController load(File f) {
         if (!f.getName().endsWith(".jar")) {
             throw new LoadException("File supplied is not a jarfile!");
         }
 
 
-        JarClassLoader classLoader = null;
+        JarClassLoader classLoader;
         try {
             classLoader = new JarClassLoader(f.toURI().toURL());
         } catch (MalformedURLException e) {
@@ -31,15 +33,15 @@ public class Loader {
                 throw new LoadException("Controller not found!");
             }
 
-            return controller.newInstance();
+            return wrapController(controller.newInstance());
         } catch (IOException e) {
             throw new LoadException("Unable to locate controller!");
         } catch (InstantiationException e) {
             throw new LoadException("Unable to instantiate controller! Make sure its constructor has no parameters!");
         } catch (IllegalAccessException e) {
             throw new LoadException("Unable to access controller constructor! Make sure it is public!");
-        }
-    }
+}
+}
 
     private Class<GolemController> findController(ZipFile zf, JarClassLoader classLoader) {
         try {
@@ -60,5 +62,10 @@ public class Loader {
         }
 
         return null;
+    }
+
+    public static CFGolemController wrapController(GolemController c) {
+        ControllerDef def = c.getClass().getAnnotation(ControllerDef.class);
+        return new CFGolemController(c, def.id(), def.name(), def.version(), def.devId());
     }
 }

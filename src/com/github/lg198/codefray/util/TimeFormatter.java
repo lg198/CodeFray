@@ -4,9 +4,23 @@ public class TimeFormatter {
 
     public static String format(long seconds) {
         if (seconds < 60) {
-            return seconds + " seconds";
+            return pluralSeconds(seconds);
         }
         int minutes = (int) (seconds / 60.0);
-        return minutes + " minutes and " + (seconds % 60) + " seconds";
+        return pluralMinutes(minutes) + " and " + pluralSeconds(seconds % 60);
+    }
+
+    public static String pluralSeconds(long i) {
+        if (i == 1) {
+            return i + " second";
+        }
+        return i + " seconds";
+    }
+
+    public static String pluralMinutes(long i) {
+        if (i == 1) {
+            return i + " minute";
+        }
+        return i + " minutes";
     }
 }

@@ -1,13 +1,12 @@
 package com.github.lg198.codefray.jfx;
 
-import com.github.lg198.codefray.api.golem.GolemController;
 import com.github.lg198.codefray.controllers.PackagedControllers;
+import com.github.lg198.codefray.game.golem.CFGolemController;
 import com.github.lg198.codefray.load.LoadException;
-import com.github.lg198.codefray.load.Loader;
+import com.github.lg198.codefray.load.ControllerLoader;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
@@ -26,7 +25,7 @@ import java.io.File;
 
 public class LoadTeamsGui {
 
-    private Loader loader;
+    private ControllerLoader loader;
     private GridPane grid = new GridPane();
 
     private TextField redField = new TextField(), blueField = new TextField();
@@ -34,9 +33,10 @@ public class LoadTeamsGui {
     private Button submit = new Button("Start Game");
     private Label warningLabel = new Label();
 
-    private TextField seedField = new TextField();
+    private TextField mapField = new TextField();
+    private Button mapBrowseButton = new Button();
 
-    public LoadTeamsGui(Loader l) {
+    public LoadTeamsGui(ControllerLoader l) {
         loader = l;
 
         loadButtonImages();
@@ -46,6 +46,7 @@ public class LoadTeamsGui {
         Image bi = new Image(ResourceManager.getIcon("loader_browse.png"), 16, 16, true, true);
         redBrowseButton.setGraphic(new ImageView(bi));
         blueBrowseButton.setGraphic(new ImageView(bi));
+        mapBrowseButton.setGraphic(new ImageView(bi));
     }
 
     public BorderPane build() {
@@ -81,10 +82,29 @@ public class LoadTeamsGui {
         grid.add(blueBox, 1, 1);
         GridPane.setHgrow(blueBox, Priority.ALWAYS);
 
-        grid.add(new Label("Map Seed:"), 0, 2);
-        grid.add(seedField, 1, 2);
-        HBox.setHgrow(seedField, Priority.ALWAYS);
-        seedField.setPromptText("Optional (long) seed");
+        grid.add(new Label("Map File:"), 0, 2);
+
+        mapBrowseButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                FileChooser chooser = new FileChooser();
+                chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CodeFray Map File", "*.cfmap"));
+                File f = chooser.showOpenDialog(null);
+                if (f == null) {
+                    return;
+                }
+                mapField.setText(f.getAbsolutePath());
+            }
+        });
+
+        HBox mapBox = new HBox();
+        mapBox.setAlignment(Pos.CENTER);
+        mapBox.setSpacing(4);
+        mapBox.getChildren().addAll(mapField, mapBrowseButton);
+        HBox.setHgrow(mapField, Priority.ALWAYS);
+        mapField.setPromptText("Path to map");
+        grid.add(mapBox, 1, 2);
+        GridPane.setHgrow(mapBox, Priority.ALWAYS);
 
         createContextMenu(redBrowseButton, redField);
         createContextMenu(blueBrowseButton, blueField);
@@ -101,14 +121,14 @@ public class LoadTeamsGui {
         submit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                GolemController red, blue;
+                CFGolemController red, blue;
                 try {
                     if (redField.getText().startsWith("?[PRELOADED]:")) {
-                        if (!PackagedControllers.controllers.containsKey(redField.getText().substring(13))) {
+                        if (!PackagedControllers.controllerExists(redField.getText().substring(13))) {
                             warningLabel.setText("Red Team Error: The specified controller is not included");
                             return;
                         }
-                        red = PackagedControllers.controllers.get(redField.getText().substring(13));
+                        red = PackagedControllers.getController(redField.getText().substring(13));
                     } else {
                         red = loader.load(new File(redField.getText()));
                         if (red == null) {
@@ -123,11 +143,11 @@ public class LoadTeamsGui {
 
                 try {
                     if (blueField.getText().startsWith("?[PRELOADED]:")) {
-                        if (!PackagedControllers.controllers.containsKey(blueField.getText().substring(13))) {
+                        if (!PackagedControllers.controllerExists(blueField.getText().substring(13))) {
                             warningLabel.setText("Blue Team Error: The specified controller is not included");
                             return;
                         }
-                        blue = PackagedControllers.controllers.get(blueField.getText().substring(13));
+                        blue = PackagedControllers.getController(blueField.getText().substring(13));
                     } else {
                         blue = loader.load(new File(blueField.getText()));
                         if (blue == null) {
@@ -139,15 +159,7 @@ public class LoadTeamsGui {
                     warningLabel.setText("Blue Team Error: " + e.getMessage());
                     return;
                 }
-                if (seedField.getText().isEmpty()) {
-                    CodeFrayApplication.switchToGame(red, blue);
-                } else {
-                    if (!seedField.getText().matches("[0-9][0-9]*")) {
-                        warningLabel.setText("The seed must be a long!");
-                        return;
-                    }
-                    CodeFrayApplication.switchToGame(red, blue, seedField.getText());
-                }
+               CodeFrayApplication.switchToGame(red, blue, mapField.getText());
             }
         });
 
@@ -193,7 +205,7 @@ public class LoadTeamsGui {
         final Stage stage = new Stage();
         stage.setTitle("Choose a Controller");
         StackPane sp = new StackPane();
-        final ListView<String> lv = new ListView<>(FXCollections.observableArrayList(PackagedControllers.controllers.keySet()));
+        final ListView<String> lv = new ListView<>(FXCollections.observableArrayList(PackagedControllers.getControllerNames()));
         lv.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         lv.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
             @Override

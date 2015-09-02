@@ -1,6 +1,7 @@
 package com.github.lg198.codefray.game.map;
 
 import com.github.lg198.codefray.api.game.Team;
+import com.github.lg198.codefray.api.math.Direction;
 import com.github.lg198.codefray.api.math.Point;
 import com.github.lg198.codefray.api.math.Vector;
 import com.github.lg198.codefray.game.golem.CFGolem;
@@ -14,7 +15,7 @@ public class CFMap {
 
     private final MapTile[][] map;
     private final int width, height;
-    private final long seed;
+    private final String name, author;
     public int getHeight() {
         return height;
     }
@@ -23,17 +24,23 @@ public class CFMap {
     }
 
 
-    public CFMap(MapTile[][] m, long s) {
+    public CFMap(MapTile[][] m, String n, String a) {
         map = m;
         width = map.length;
         height = map[0].length;
 
-        seed = s;
+        name = n;
+        author = a;
     }
 
-    public long getSeed() {
-        return seed;
+    public String getName() {
+        return name;
     }
+
+    public String getAuthor() {
+        return author;
+    }
+
 
     public void setTile(Point p, MapTile mt) {
         map[p.getX()][p.getY()] = mt;
@@ -50,22 +57,6 @@ public class CFMap {
         if (getTile(p1) == null) {
             return;
         }
-        if (getTile(p1) instanceof CFGolem) {
-            if (getTile(p2) instanceof GolemHabitat) {
-                GolemHabitat gh = (GolemHabitat) getTile(p2);
-                if (gh.onGolemMove((CFGolem)getTile(p1))) {
-                    MapTile temp = getTile(p1);
-                    setTile(p2, temp);
-                    setTile(p1, null);
-                    return;
-                }
-            }
-        }
-
-        if (getTile(p2) != null) {
-            return;
-        }
-
         MapTile temp = getTile(p1);
         setTile(p2, temp);
         setTile(p1, null);
@@ -113,5 +104,20 @@ public class CFMap {
         }
         return null;
     }
-    
+
+    public boolean isGolemMoveValid(CFGolem g, Direction d) {
+        Point loc = g.getLocation();
+        Point after = loc.in(d);
+        if (after.getX() < 0 || after.getX() >= width ||
+                after.getY() < 0 || after.getY() >= height) {
+            return false;
+        }
+        if (getTile(after) == null) return true;
+        if (!(getTile(after) instanceof GolemHabitat)) return false;
+        if (!((GolemHabitat)getTile(after)).onGolemEnter(g)) {
+            return false;
+        }
+        return true;
+    }
+
 }

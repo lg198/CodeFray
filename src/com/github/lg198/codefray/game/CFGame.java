@@ -3,14 +3,16 @@ package com.github.lg198.codefray.game;
 
 import com.github.lg198.codefray.api.golem.GolemController;
 import com.github.lg198.codefray.api.golem.GolemType;
-import com.github.lg198.codefray.api.math.Direction;
+import com.github.lg198.codefray.api.math.*;
 import com.github.lg198.codefray.api.game.Game;
 import com.github.lg198.codefray.api.game.Team;
-import com.github.lg198.codefray.api.math.Point;
+import com.github.lg198.codefray.api.math.Vector;
 import com.github.lg198.codefray.game.golem.CFGolem;
+import com.github.lg198.codefray.game.golem.CFGolemController;
 import com.github.lg198.codefray.game.golem.CFGolemWrapper;
 import com.github.lg198.codefray.game.map.CFMap;
 import com.github.lg198.codefray.game.map.FlagTile;
+import com.github.lg198.codefray.game.map.GolemSpawnTile;
 import com.github.lg198.codefray.game.map.WinTile;
 import com.github.lg198.codefray.jfx.CodeFrayApplication;
 import com.github.lg198.codefray.jfx.MainGui;
@@ -29,7 +31,7 @@ public class CFGame implements Game {
     private final CFMap map;
     private final List<CFGolem> golems = new ArrayList<CFGolem>();
     private final Team[] teams;
-    private final Map<Team, GolemController> controllerMap;
+    private final Map<Team, CFGolemController> controllerMap;
     private final MainGui gui;
     private GameLog log;
 
@@ -42,11 +44,11 @@ public class CFGame implements Game {
 
     private int totalHealth;
 
-    public CFGame(CFMap m, Map<Team, GolemController> cm) {
+    public CFGame(CFMap m, Map<Team, CFGolemController> cm) {
         map = m;
         teams = Team.values();
         controllerMap = cm;
-        gui = new MainGui(this);
+        gui = new MainGui(this, true);
 
         File folder = new File(System.getProperty("user.home"), ".codefray_v1");
         if (!folder.exists()) {
@@ -55,7 +57,7 @@ public class CFGame implements Game {
         log = new GameLog(this, folder);
     }
 
-    public GolemController getController(Team t) {
+    public CFGolemController getController(Team t) {
         return controllerMap.get(t);
     }
 
@@ -76,27 +78,14 @@ public class CFGame implements Game {
     }
 
     public void start() {
-        //TODO: SPAWN GOLEMS FOR EACH TEAM, PLACE FLAGS
-
-        CFGolem g1 = new CFGolem(this, GolemType.RUNNER, Team.RED, 0);
-        CFGolem g2 = new CFGolem(this, GolemType.RUNNER, Team.BLUE, 1);
-
-        for (int i = 0; i < getMap().getWidth(); i++) {
-            if (getMap().getTile(new Point(i, 0)) == null) {
-                getMap().setTile(new Point(i, 0), g1);
-                break;
-            }
+        int id = 0;
+        for (GolemSpawnTile t : map.getTilesOfType(GolemSpawnTile.class)) {
+            Team team = t.team;
+            GolemType type = t.golemType;
+            CFGolem golem = new CFGolem(this, type, team, id++);
+            golem.setLocation(t.getMapPosition());
+            golems.add(golem);
         }
-
-        for (int i = getMap().getWidth() - 1; i >= 0; i--) {
-            if (getMap().getTile(new Point(i, getMap().getHeight() - 1)) == null) {
-                getMap().setTile(new Point(i, getMap().getHeight() - 1), g2);
-                break;
-            }
-        }
-
-        golems.add(g1);
-        golems.add(g2);
 
         for (CFGolem g : golems) {
             if (g.getTeam() != Team.RED) {
@@ -105,17 +94,9 @@ public class CFGame implements Game {
             totalHealth += g.getType().getMaxHealth();
         }
 
-        clock = new GameClock(new Runnable() {
-            @Override
-            public void run() {
-                onRound();
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        gui.update();
-                    }
-                });
-            }
+        clock = new GameClock(() -> {
+            onRound();
+            Platform.runLater(gui::update);
         });
         running = true;
         clock.start();
@@ -261,5 +242,27 @@ public class CFGame implements Game {
         return (double) th / totalHealth;
     }
 
+    public List<CFGolem> searchGolems(CFGolem reference, int radius2) {
+        List<CFGolem> found = new ArrayList<>();
+        for (CFGolem golem : golems) {
+            if (golem.getId() == reference.getId()) {
+                continue;
+            }
+            if (Vector.between(reference.getLocation(), golem.getLocation()).getMagnitudeSquared() > radius2) {
+                continue;
+            }
+            found.add(golem);
+        }
+        return found;
+    }
+
+    public CFGolem golemAt(Point p) {
+        for (CFGolem g : golems) {
+            if (g.getLocation().equals(p)) {
+                return g;
+            }
+        }
+        return null;
+    }
 
 }

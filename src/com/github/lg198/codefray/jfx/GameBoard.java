@@ -62,6 +62,11 @@ public class GameBoard {
 
             @Override
             public void handle(MouseEvent e) {
+                if (e.getEventType() == MouseEvent.MOUSE_RELEASED) {
+                    render.setCursor(Cursor.DEFAULT);
+                    dragged = false;
+                    return;
+                }
                 if (e.getEventType() == MouseEvent.MOUSE_PRESSED) {
                     dragged = false;
                     dx = e.getX(); dy = e.getY();
@@ -69,11 +74,14 @@ public class GameBoard {
                     return;
                 }
                 if (e.getEventType() == MouseEvent.MOUSE_CLICKED) {
+                    System.out.println("dragged: " + (!dragged) + " paused: " + game.isPaused());
                     if (!dragged && game.isPaused()) {
                         Point p = clickToCell(e.getX(), e.getY());
+                        System.out.println(p);
                         redraw();
-                        if (game.getMap().getTile(p) instanceof CFGolem) {
-                            game.getGui().panel.golemSelected((CFGolem) game.getMap().getTile(p));
+                        CFGolem g = game.golemAt(p);
+                        if (g != null) {
+                            game.getGui().panel.golemSelected(g);
                             highlightCell(p);
                         } else {
                             game.getGui().panel.removeGolemBox();
@@ -82,6 +90,7 @@ public class GameBoard {
                         return;
                     }
                     render.setCursor(Cursor.DEFAULT);
+                    return;
                 }
                 if (!dragged) {
                     render.setCursor(Cursor.CLOSED_HAND);
@@ -97,6 +106,7 @@ public class GameBoard {
         render.setOnMouseDragged(mh);
         render.setOnMousePressed(mh);
         render.setOnMouseClicked(mh);
+        render.setOnMouseReleased(mh);
 
         render.setOnScroll(new EventHandler<ScrollEvent>() {
 
@@ -143,7 +153,7 @@ public class GameBoard {
         gc().save();
         double pad = gridSize/10;
         double ipad = padding ? pad : 0;
-        gc().translate(ipad + p.getX()*(gridSize+pad), ipad + p.getY()*(gridSize+pad));
+        gc().translate(ipad + p.getX() * (gridSize + pad), ipad + p.getY() * (gridSize + pad));
     }
 
     public void redraw() {
@@ -177,6 +187,10 @@ public class GameBoard {
             gc().fillRect(0, y * (pad+gridSize), width, pad);
         }
         gc().restore();
+
+        if (highlighted != null) {
+            highlightCell(highlighted);
+        }
     }
 
     private void renderCell(Point p) {
@@ -185,7 +199,7 @@ public class GameBoard {
             gc().setFill(Color.WHITESMOKE);
             gc().fillRect(0, 0, gridSize, gridSize);
         }
-        if (mt instanceof CFGolem) {
+        if (game.golemAt(p) != null) {
             gc().drawImage(testsprite, 0, 0, gridSize, gridSize);
         } else if (mt instanceof WallTile) {
             gc().setFill(Color.DARKGRAY);
@@ -205,7 +219,9 @@ public class GameBoard {
         }
     }
 
+    private Point highlighted;
     private void highlightCell(Point p) {
+        highlighted = p;
         translateToCell(p, false);
         gc().translate(transx, transy);
 
@@ -222,6 +238,7 @@ public class GameBoard {
 
     public void update() {
         redraw();
+        highlighted = null;
     }
 
 }

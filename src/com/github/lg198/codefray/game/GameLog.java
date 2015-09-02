@@ -68,7 +68,6 @@ public class GameLog {
         //log.println("[Blue Team Controller: " + quote(game.getController(Team.BLUE).getIdString()) + "]");
         log.println();
         log.println("> Game started.");
-        log.println("> Using map [seed: " + map.getSeed() + "]");
     }
 
     public void logRoundStart() {

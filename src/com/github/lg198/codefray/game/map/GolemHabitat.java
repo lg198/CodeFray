@@ -4,5 +4,5 @@ import com.github.lg198.codefray.game.golem.CFGolem;
 
 public interface GolemHabitat {
 
-    public boolean onGolemMove(CFGolem g);
+    public boolean onGolemEnter(CFGolem g);
 }
