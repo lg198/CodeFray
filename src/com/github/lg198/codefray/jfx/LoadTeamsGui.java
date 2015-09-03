@@ -30,6 +30,7 @@ public class LoadTeamsGui {
 
     private TextField redField = new TextField(), blueField = new TextField();
     private Button redBrowseButton = new Button(), blueBrowseButton = new Button();
+    private boolean redPreloaded = false, bluePreloaded = false;
     private Button submit = new Button("Start Game");
     private Label warningLabel = new Label();
 
@@ -123,7 +124,7 @@ public class LoadTeamsGui {
             public void handle(ActionEvent actionEvent) {
                 CFGolemController red, blue;
                 try {
-                    if (redField.getText().startsWith("?[PRELOADED]:")) {
+                    if (redPreloaded) {
                         if (!PackagedControllers.controllerExists(redField.getText().substring(13))) {
                             warningLabel.setText("Red Team Error: The specified controller is not included");
                             return;
@@ -142,7 +143,7 @@ public class LoadTeamsGui {
                 }
 
                 try {
-                    if (blueField.getText().startsWith("?[PRELOADED]:")) {
+                    if (bluePreloaded) {
                         if (!PackagedControllers.controllerExists(blueField.getText().substring(13))) {
                             warningLabel.setText("Blue Team Error: The specified controller is not included");
                             return;
@@ -180,6 +181,13 @@ public class LoadTeamsGui {
                     return;
                 }
                 tf.setText(f.getAbsolutePath());
+                if (tf == redField) {
+                    redPreloaded = false;
+                    unsetPreloaded(tf);
+                } else {
+                    bluePreloaded = false;
+                    unsetPreloaded(tf);
+                }
             }
         });
 
@@ -229,6 +237,13 @@ public class LoadTeamsGui {
                     return;
                 }
                 tf.setText("?[PRELOADED]:" + controller);
+                if (tf == redField) {
+                    redPreloaded = true;
+                    setPreloaded(tf);
+                } else {
+                    bluePreloaded = true;
+                    setPreloaded(tf);
+                }
                 stage.close();
             }
         });
@@ -236,6 +251,14 @@ public class LoadTeamsGui {
         Scene sc = new Scene(sp, 300, 200);
         stage.setScene(sc);
         stage.show();
+    }
+
+    private void setPreloaded(final TextField tf) {
+        tf.setEditable(false);
+    }
+
+    private void unsetPreloaded(final TextField tf) {
+        tf.setEditable(true);
     }
 
 }
