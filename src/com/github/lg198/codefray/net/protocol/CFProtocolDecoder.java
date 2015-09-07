@@ -23,7 +23,7 @@ public class CFProtocolDecoder extends CumulativeProtocolDecoder {
         }
 
         incomplete.content = new byte[incomplete.size];
-        in.put(incomplete.content);
+        in.get(incomplete.content);
 
         session.removeAttribute("decoder.header");
         return true;

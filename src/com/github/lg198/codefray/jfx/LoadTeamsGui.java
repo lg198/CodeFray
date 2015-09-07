@@ -4,6 +4,7 @@ import com.github.lg198.codefray.controllers.PackagedControllers;
 import com.github.lg198.codefray.game.golem.CFGolemController;
 import com.github.lg198.codefray.load.LoadException;
 import com.github.lg198.codefray.load.ControllerLoader;
+import com.github.lg198.codefray.util.Stylizer;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -17,6 +18,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -31,6 +33,8 @@ public class LoadTeamsGui {
     private TextField redField = new TextField(), blueField = new TextField();
     private Button redBrowseButton = new Button(), blueBrowseButton = new Button();
     private boolean redPreloaded = false, bluePreloaded = false;
+    private String redPreloadedName = "", bluePreloadedName = "";
+    private HBox redBox, blueBox;
     private Button submit = new Button("Start Game");
     private Label warningLabel = new Label();
 
@@ -61,7 +65,7 @@ public class LoadTeamsGui {
 
         grid.add(new Label("Red Team:"), 0, 0);
 
-        HBox redBox = new HBox();
+        redBox = new HBox();
         redBox.setAlignment(Pos.CENTER);
         redBox.setSpacing(4);
         redBox.getChildren().addAll(redField, redBrowseButton);
@@ -73,7 +77,7 @@ public class LoadTeamsGui {
 
         grid.add(new Label("Blue Team:"), 0, 1);
 
-        HBox blueBox = new HBox();
+        blueBox = new HBox();
         blueBox.setAlignment(Pos.CENTER);
         blueBox.setSpacing(4);
         blueBox.getChildren().addAll(blueField, blueBrowseButton);
@@ -125,11 +129,11 @@ public class LoadTeamsGui {
                 CFGolemController red, blue;
                 try {
                     if (redPreloaded) {
-                        if (!PackagedControllers.controllerExists(redField.getText().substring(13))) {
+                        if (!PackagedControllers.controllerExists(redPreloadedName)) {
                             warningLabel.setText("Red Team Error: The specified controller is not included");
                             return;
                         }
-                        red = PackagedControllers.getController(redField.getText().substring(13));
+                        red = PackagedControllers.getController(redPreloadedName);
                     } else {
                         red = loader.load(new File(redField.getText()));
                         if (red == null) {
@@ -144,11 +148,11 @@ public class LoadTeamsGui {
 
                 try {
                     if (bluePreloaded) {
-                        if (!PackagedControllers.controllerExists(blueField.getText().substring(13))) {
+                        if (!PackagedControllers.controllerExists(bluePreloadedName)) {
                             warningLabel.setText("Blue Team Error: The specified controller is not included");
                             return;
                         }
-                        blue = PackagedControllers.getController(blueField.getText().substring(13));
+                        blue = PackagedControllers.getController(bluePreloadedName);
                     } else {
                         blue = loader.load(new File(blueField.getText()));
                         if (blue == null) {
@@ -158,6 +162,11 @@ public class LoadTeamsGui {
                     }
                 } catch (LoadException e) {
                     warningLabel.setText("Blue Team Error: " + e.getMessage());
+                    return;
+                }
+
+                if (mapField.getText().isEmpty() || !new File(mapField.getText()).exists()) {
+                    warningLabel.setText("Map Error: Cannot be found!");
                     return;
                 }
                CodeFrayApplication.switchToGame(red, blue, mapField.getText());
@@ -180,14 +189,14 @@ public class LoadTeamsGui {
                 if (f == null) {
                     return;
                 }
-                tf.setText(f.getAbsolutePath());
-                if (tf == redField) {
+                if (tf == redField && redPreloaded) {
                     redPreloaded = false;
                     unsetPreloaded(tf);
-                } else {
+                } else if (tf == blueField && bluePreloaded) {
                     bluePreloaded = false;
                     unsetPreloaded(tf);
                 }
+                tf.setText(f.getAbsolutePath());
             }
         });
 
@@ -236,12 +245,14 @@ public class LoadTeamsGui {
                 if (controller == null) {
                     return;
                 }
-                tf.setText("?[PRELOADED]:" + controller);
+                tf.setText(controller);
                 if (tf == redField) {
                     redPreloaded = true;
+                    redPreloadedName = controller;
                     setPreloaded(tf);
                 } else {
                     bluePreloaded = true;
+                    bluePreloadedName = controller;
                     setPreloaded(tf);
                 }
                 stage.close();
@@ -254,11 +265,32 @@ public class LoadTeamsGui {
     }
 
     private void setPreloaded(final TextField tf) {
-        tf.setEditable(false);
+        double width = tf.getWidth();
+        HBox box = tf == blueField ? blueBox : redBox;
+        if (box.getChildren().contains(tf)) {
+            box.getChildren().remove(tf);
+        } else {
+            box.getChildren().remove(0);
+        }
+        Label l = new Label(tf.getText());
+        l.setMinWidth(width);
+        l.setMaxWidth(width);
+        l.setPrefWidth(width);
+        Stylizer.set(l, "-fx-background-color", "lightblue");
+        Stylizer.set(l, "-fx-text-fill", "white");
+        Stylizer.set(l, "-fx-background-radius", "3px");
+        Stylizer.set(l, "-fx-padding", "5px");
+        Stylizer.set(l, "-fx-font-size", "12px");
+        Stylizer.set(l, "-fx-font-weight", "bold");
+        HBox.setHgrow(l, Priority.ALWAYS);
+        box.getChildren().add(0, l);
     }
 
     private void unsetPreloaded(final TextField tf) {
-        tf.setEditable(true);
+        HBox box = tf == blueField ? blueBox : redBox;
+        box.getChildren().remove(0);
+        box.getChildren().add(0, tf);
+        tf.setText("");
     }
 
 }

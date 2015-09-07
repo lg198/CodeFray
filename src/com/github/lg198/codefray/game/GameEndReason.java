@@ -4,7 +4,7 @@ import com.github.lg198.codefray.api.game.Team;
 
 public class GameEndReason {
 
-    public static final class Win extends GameEndReason {
+    public static final class Win extends GameEndReason { //type 0
 
         public static enum Reason {
             FLAG, DEATH;
@@ -19,7 +19,7 @@ public class GameEndReason {
         }
     }
 
-    public static final class Infraction extends GameEndReason {
+    public static final class Infraction extends GameEndReason { //type 1
 
         public static enum Type {
             OUT_OF_ROUND
@@ -34,7 +34,7 @@ public class GameEndReason {
         }
     }
 
-    public static final class Forced extends GameEndReason {
+    public static final class Forced extends GameEndReason { //type 2
 
     }
 }
