@@ -26,6 +26,7 @@ public class DefaultController implements GolemController {
             otherTeam = thisTeam == Team.BLUE ? Team.RED : Team.BLUE;
             initialized = true;
             cd = g.getFlagDirection(otherTeam);
+            System.out.println("CD: " + cd);
         }
 
         Direction next = determineNext(g);

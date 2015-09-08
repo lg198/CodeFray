@@ -15,6 +15,7 @@ import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
@@ -27,12 +28,46 @@ public class GameBoard {
     private double gridSize = 50, minGridSize = 10, maxGridSize = 60;
     private double transx = 0, transy = 0;
 
+    private Image redFlag, blueFlag, redWin, blueWin;
+
     public GameBoard(CFGame g) {
         game = g;
 
         testsprite = new Image(
                 ResourceManager.getIcon("testsprite.png"),
                 32, 32, true, true);
+
+        redFlag = new Image(
+                ResourceManager.getIcon("flag.png"),
+                32, 32, true, true);
+
+        blueFlag = new WritableImage((int) redFlag.getWidth(), (int) redFlag.getHeight());
+        for (int x = 0; x < blueFlag.getWidth(); x++) {
+            for (int y = 0; y < blueFlag.getHeight(); y++) {
+                if (redFlag.getPixelReader().getColor(x, y).getRed() == 1.0) {
+                    ((WritableImage) blueFlag).getPixelWriter().setColor(x, y, Color.rgb(0, 0, 255));
+                } else {
+                    ((WritableImage) blueFlag).getPixelWriter().setColor(x, y, redFlag.getPixelReader().getColor(x, y));
+                }
+            }
+        }
+
+        redWin = new Image(
+                ResourceManager.getIcon("win.png"),
+                32, 32, true, true);
+
+        blueWin = new WritableImage((int) redWin.getWidth(), (int) redWin.getHeight());
+        for (int x = 0; x < blueWin.getWidth(); x++) {
+            for (int y = 0; y < blueWin.getHeight(); y++) {
+                if (redWin.getPixelReader().getColor(x, y).getRed() == 1.0) {
+                    ((WritableImage) blueWin).getPixelWriter().setColor(x, y, Color.BLUE);
+                } else if (redWin.getPixelReader().getColor(x, y).getBlue() == 1.0) {
+                    ((WritableImage) blueWin).getPixelWriter().setColor(x, y, Color.RED);
+                } else {
+                    ((WritableImage) blueWin).getPixelWriter().setColor(x, y, redWin.getPixelReader().getColor(x, y));
+                }
+            }
+        }
     }
 
     private Image testsprite;
@@ -85,6 +120,7 @@ public class GameBoard {
                             highlightCell(p);
                         } else {
                             game.getGui().panel.removeGolemBox();
+                            update();
                         }
 
                         return;
@@ -205,22 +241,21 @@ public class GameBoard {
             gc().setFill(Color.DARKGRAY);
             gc().fillRect(0, 0, gridSize, gridSize);
         } else if (mt instanceof FlagTile) {
-            FlagTile ft = (FlagTile) mt;
-            gc().setFill(ft.getTeam() == Team.RED ? Color.RED : Color.BLUE);
-            gc().fillRect(0, 0, gridSize, gridSize);
-            gc().setStroke(Color.DARKGRAY);
-            gc().setLineWidth(gridSize/15);
-            gc().strokeLine(0, 0, gridSize, gridSize);
-            gc().strokeLine(0, gridSize, gridSize, 0);
+            if (((FlagTile)mt).getTeam() == Team.RED) {
+                gc().drawImage(redFlag, 0, 0, gridSize, gridSize);
+            } else {
+                gc().drawImage(blueFlag, 0, 0, gridSize, gridSize);
+
+            }
         } else if (mt instanceof WinTile) {
             WinTile wt = (WinTile) mt;
-            gc().setFill(wt.getTeam() == Team.RED ? Color.RED : Color.BLUE);
-            gc().fillRect(0, 0, gridSize, gridSize);
+            gc().drawImage(wt.getTeam() == Team.RED ? redWin : blueWin, 0, 0, gridSize, gridSize);
         }
     }
 
     private Point highlighted;
     private void highlightCell(Point p) {
+        update();
         highlighted = p;
         translateToCell(p, false);
         gc().translate(transx, transy);

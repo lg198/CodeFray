@@ -2,7 +2,9 @@ package com.github.lg198.codefray.util;
 
 import javafx.scene.Node;
 
+import java.util.Arrays;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Stylizer {
 
@@ -28,6 +30,22 @@ public class Stylizer {
         if (!found) {
             n.setStyle(n.getStyle() + "; " + key + ": " + value);
         }
+    }
+
+    public static void remove(Node n, String key) {
+        if (n.getStyle().isEmpty()) return;
+
+        if (n.getStyle().endsWith(";")) {
+            n.setStyle(n.getStyle().substring(0, n.getStyle().length()-1));
+        }
+
+        n.setStyle(Arrays.stream(n.getStyle().split(";")).filter((String s) -> {
+            String[] split = s.split(":\\s+");
+            if (split[0].trim().equals(key)) {
+                return false;
+            }
+            return true;
+        }).collect(Collectors.joining(";")));
     }
 
 

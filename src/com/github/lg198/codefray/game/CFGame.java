@@ -10,10 +10,7 @@ import com.github.lg198.codefray.api.math.Vector;
 import com.github.lg198.codefray.game.golem.CFGolem;
 import com.github.lg198.codefray.game.golem.CFGolemController;
 import com.github.lg198.codefray.game.golem.CFGolemWrapper;
-import com.github.lg198.codefray.game.map.CFMap;
-import com.github.lg198.codefray.game.map.FlagTile;
-import com.github.lg198.codefray.game.map.GolemSpawnTile;
-import com.github.lg198.codefray.game.map.WinTile;
+import com.github.lg198.codefray.game.map.*;
 import com.github.lg198.codefray.jfx.CodeFrayApplication;
 import com.github.lg198.codefray.jfx.MainGui;
 import com.github.lg198.codefray.jfx.OptionsPanel;
@@ -24,9 +21,10 @@ import javafx.util.Duration;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
-public class CFGame implements Game {
+public class CFGame implements Game, GameBoardProvider {
 
     private final CFMap map;
     private final List<CFGolem> golems = new ArrayList<CFGolem>();
@@ -263,6 +261,49 @@ public class CFGame implements Game {
             }
         }
         return null;
+    }
+
+    @Override
+    public int golemIdAt(Point p) {
+        return golemAt(p).getId();
+    }
+
+    @Override
+    public void selectGolem(int id) {
+        CFGolem match = golems.stream().filter(g -> g.getId() == id).limit(1).collect(Collectors.toList()).get(0);
+        getGui().panel.golemSelected(golems.get(id));
+    }
+
+    @Override
+    public void deselectGolem() {
+        getGui().panel.removeGolemBox();
+    }
+
+    @Override
+    public int getMapWidth() {
+        return map.getWidth();
+    }
+
+    @Override
+    public int getMapHeight() {
+        return map.getHeight();
+    }
+
+    @Override
+    public MapTile getMapTileAt(Point p) {
+        return map.getTile(p);
+    }
+
+    @Override
+    public int golemType(int id) {
+        CFGolem match = golems.stream().filter(g -> g.getId() == id).limit(1).collect(Collectors.toList()).get(0);
+        return match.getType().ordinal();
+    }
+
+    @Override
+    public Team golemTeam(int id) {
+        CFGolem match = golems.stream().filter(g -> g.getId() == id).limit(1).collect(Collectors.toList()).get(0);
+        return match.getTeam();
     }
 
 }

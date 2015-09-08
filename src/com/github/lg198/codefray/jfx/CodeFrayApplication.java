@@ -32,12 +32,7 @@ public class CodeFrayApplication extends Application {
     public void start(Stage stage) {
         primaryStage = stage;
 
-        ControllerLoader l = new ControllerLoader();
-        LoadTeamsGui gui = new LoadTeamsGui(l);
-        Scene sc = new Scene(gui.build());
-        stage.setScene(sc);
-        stage.show();
-        //switchToGame(PackagedControllers.controllers.get("Default"), PackagedControllers.controllers.get("Default"), "C:\\Users\\Layne\\Documents\\code\\CodeFray\\test.cfmap");
+        new StartGui().launch();
     }
 
     private static void startGame(Stage stage, CFGolemController red, CFGolemController blue, File mapFile) {
@@ -66,6 +61,15 @@ public class CodeFrayApplication extends Application {
         GameResultGui gui = new GameResultGui(stats);
         Scene sc = new Scene(gui.build());
         primaryStage.setScene(sc);
+        primaryStage.show();
+    }
+
+    public static void startLocalGame() {
+        ControllerLoader l = new ControllerLoader();
+        LoadTeamsGui gui = new LoadTeamsGui(l);
+        Scene scene = new Scene(gui.build());
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("Load Game");
         primaryStage.show();
     }
 }
