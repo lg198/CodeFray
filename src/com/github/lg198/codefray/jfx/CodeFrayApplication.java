@@ -49,6 +49,7 @@ public class CodeFrayApplication extends Application {
         testGame.getGui().update();
 
         primaryStage.setMaximized(true);
+        primaryStage.setTitle("CodeFray: " + testGame.getController(Team.RED).name + " vs " + testGame.getController(Team.RED).name);
     }
 
     public static void switchToGame(CFGolemController red, CFGolemController blue, String mapString) {

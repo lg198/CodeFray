@@ -3,6 +3,7 @@ package com.github.lg198.codefray.jfx;
 import com.github.lg198.codefray.api.game.Team;
 import com.github.lg198.codefray.api.math.Point;
 import com.github.lg198.codefray.game.CFGame;
+import com.github.lg198.codefray.game.GameBoardProvider;
 import com.github.lg198.codefray.game.golem.CFGolem;
 import com.github.lg198.codefray.game.map.FlagTile;
 import com.github.lg198.codefray.game.map.MapTile;
@@ -23,14 +24,14 @@ import javafx.scene.paint.Color;
 public class GameBoard {
 
     private Canvas render = new Canvas();
-    private CFGame game;
+    private GameBoardProvider game;
 
     private double gridSize = 50, minGridSize = 10, maxGridSize = 60;
     private double transx = 0, transy = 0;
 
     private Image redFlag, blueFlag, redWin, blueWin;
 
-    public GameBoard(CFGame g) {
+    public GameBoard(GameBoardProvider g) {
         game = g;
 
         testsprite = new Image(
@@ -109,17 +110,18 @@ public class GameBoard {
                     return;
                 }
                 if (e.getEventType() == MouseEvent.MOUSE_CLICKED) {
-                    System.out.println("dragged: " + (!dragged) + " paused: " + game.isPaused());
                     if (!dragged && game.isPaused()) {
                         Point p = clickToCell(e.getX(), e.getY());
-                        System.out.println(p);
                         redraw();
-                        CFGolem g = game.golemAt(p);
-                        if (g != null) {
-                            game.getGui().panel.golemSelected(g);
+                        int gid = game.golemIdAt(p);
+                        if (gid > -1) {
+                            game.selectGolem(gid);
+                            if (highlighted != null) {
+                                update();
+                            }
                             highlightCell(p);
                         } else {
-                            game.getGui().panel.removeGolemBox();
+                            game.deselectGolem();
                             update();
                         }
 
@@ -200,14 +202,14 @@ public class GameBoard {
         gc().translate(transx, transy);
 
         double pad = gridSize / 10;
-        double width = game.getMap().getWidth()*(pad+gridSize) + pad;
-        double height = game.getMap().getHeight()*(pad+gridSize) + pad;
+        double width = game.getMapWidth()*(pad+gridSize) + pad;
+        double height = game.getMapHeight()*(pad+gridSize) + pad;
 
         gc().setFill(Color.WHITESMOKE);
         gc().fillRect(0, 0, width, height);
 
-        for (int x = 0; x < game.getMap().getWidth(); x++) {
-            for (int y = 0; y < game.getMap().getHeight(); y++) {
+        for (int x = 0; x < game.getMapWidth(); x++) {
+            for (int y = 0; y < game.getMapHeight(); y++) {
                 Point p = new Point(x, y);
                 translateToCell(p, true);
                 renderCell(new Point(x, y));
@@ -216,10 +218,10 @@ public class GameBoard {
         }
 
         gc().setFill(Color.BLACK);
-        for (int x = 0; x <= game.getMap().getWidth(); x++) {
+        for (int x = 0; x <= game.getMapWidth(); x++) {
             gc().fillRect(x * (pad+gridSize), 0, pad, height);
         }
-        for (int y = 0; y <= game.getMap().getHeight(); y++) {
+        for (int y = 0; y <= game.getMapHeight(); y++) {
             gc().fillRect(0, y * (pad+gridSize), width, pad);
         }
         gc().restore();
@@ -230,12 +232,12 @@ public class GameBoard {
     }
 
     private void renderCell(Point p) {
-        MapTile mt = game.getMap().getTile(p);
+        MapTile mt = game.getMapTileAt(p);
         if (mt == null) {
             gc().setFill(Color.WHITESMOKE);
             gc().fillRect(0, 0, gridSize, gridSize);
         }
-        if (game.golemAt(p) != null) {
+        if (game.golemIdAt(p) > -1) {
             gc().drawImage(testsprite, 0, 0, gridSize, gridSize);
         } else if (mt instanceof WallTile) {
             gc().setFill(Color.DARKGRAY);
@@ -255,7 +257,6 @@ public class GameBoard {
 
     private Point highlighted;
     private void highlightCell(Point p) {
-        update();
         highlighted = p;
         translateToCell(p, false);
         gc().translate(transx, transy);
@@ -272,8 +273,8 @@ public class GameBoard {
     }
 
     public void update() {
-        redraw();
         highlighted = null;
+        redraw();
     }
 
 }

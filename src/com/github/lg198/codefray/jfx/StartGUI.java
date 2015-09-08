@@ -52,14 +52,7 @@ public class StartGui {
         box.setPadding(new Insets(25));
         box.setSpacing(10);
 
-        WritableImage localBlue = new WritableImage((int) LOCAL_IMG.getWidth(), (int) LOCAL_IMG.getHeight());
-        for (int x = 0; x < localBlue.getWidth(); x++) {
-            for (int y = 0; y < localBlue.getHeight(); y++) {
-                localBlue.getPixelWriter().setColor(x, y, LOCAL_IMG.getPixelReader().getColor(x, y));
-            }
-        }
-
-        localBox = buildSelectionBox(localBlue, "Run Local Game", "Run a CodeFray game on your current computer.");
+        localBox = buildSelectionBox(LOCAL_IMG, "Run Local Game", "Run a CodeFray game on your current computer.");
         eyeBox = buildSelectionBox(EYE_IMG, "View Remote Game", "View a CodeFray game that is currently being broadcasted live.");
         uploadBox = buildSelectionBox(UPLOAD_IMG, "Host Remote Game", "Host a CodeFray game so that others can view it live.");
 
@@ -82,7 +75,10 @@ public class StartGui {
         Stylizer.set(title, "-fx-font-size", "30px");
         Stylizer.set(title, "-fx-font-weight", "bold");
         title.setAlignment(Pos.CENTER);
-        box.getChildren().add(title);
+        title.setPadding(new Insets(0, 0, 5, 0));
+        HBox titleBox = new HBox(title);
+        titleBox.setAlignment(Pos.CENTER_LEFT);
+        box.getChildren().add(titleBox);
 
         box.getChildren().add(localBox);
         box.getChildren().add(eyeBox);

@@ -265,7 +265,8 @@ public class CFGame implements Game, GameBoardProvider {
 
     @Override
     public int golemIdAt(Point p) {
-        return golemAt(p).getId();
+        CFGolem g = golemAt(p);
+        return g != null ? g.getId() : -1;
     }
 
     @Override
