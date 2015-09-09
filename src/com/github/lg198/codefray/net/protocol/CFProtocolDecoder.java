@@ -1,9 +1,12 @@
 package com.github.lg198.codefray.net.protocol;
 
+import com.github.lg198.codefray.net.protocol.packet.Packet;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
+
+import java.io.IOException;
 
 public class CFProtocolDecoder extends CumulativeProtocolDecoder {
 
@@ -24,6 +27,21 @@ public class CFProtocolDecoder extends CumulativeProtocolDecoder {
 
         incomplete.content = new byte[incomplete.size];
         in.get(incomplete.content);
+
+        if (!CFPacket.PACKETS.containsKey(incomplete.id)) {
+            throw new IOException("Non-existing packet read!");
+        }
+
+        Class<? extends Packet> c = CFPacket.PACKETS.get(incomplete.id);
+
+        try {
+            Packet p = c.newInstance();
+            p.read(incomplete.content);
+            out.write(p);
+        } catch (Exception e) {
+            throw new Exception("Error while attempting to instantiate class.", e);
+        }
+
 
         session.removeAttribute("decoder.header");
         return true;

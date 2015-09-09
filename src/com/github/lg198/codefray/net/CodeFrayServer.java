@@ -7,8 +7,12 @@ import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CodeFrayServer {
+
+    public static List<ServerClient> clients = new ArrayList<>();
 
     public static final int PORT = 43444;
 
@@ -26,6 +30,11 @@ public class CodeFrayServer {
 
     public void stop() throws IOException {
         acceptor.dispose(true);
+    }
+
+    static class ServerClient {
+        public String username;
+        public long id;
     }
 
 }
