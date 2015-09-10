@@ -37,6 +37,12 @@ public class CFPacket {
 
         }
     };
+    public static final Map<Class<? extends Packet>, Integer> REV_PACKETS = new HashMap<>();
+    static {
+        for (Integer key : PACKETS.keySet()) {
+            REV_PACKETS.put(PACKETS.get(key), key);
+        }
+    }
 
 
     public int id, size;

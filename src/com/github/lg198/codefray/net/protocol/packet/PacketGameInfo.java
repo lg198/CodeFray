@@ -10,6 +10,7 @@ import java.nio.charset.CharsetDecoder;
 public class PacketGameInfo extends Packet {
 
     public String redName, blueName, redControllerName, blueControllerName;
+    public boolean gameStarted;
 
     @Override
     public void read(byte[] content) throws IOException {
@@ -18,6 +19,7 @@ public class PacketGameInfo extends Packet {
         blueName = buff.getString(CFPacket.DECODER);
         redControllerName = buff.getString(CFPacket.DECODER);
         blueControllerName = buff.getString(CFPacket.DECODER);
+        gameStarted = buff.get() == 1 ? true : false;
     }
 
     @Override
@@ -29,6 +31,7 @@ public class PacketGameInfo extends Packet {
         buff.putString(blueName, CFPacket.ENCODER);
         buff.putString(redControllerName, CFPacket.ENCODER);
         buff.putString(blueControllerName, CFPacket.ENCODER);
+        buff.put(gameStarted ? (byte) 1 : (byte) 0);
 
         buff.flip();
         return buff.array();

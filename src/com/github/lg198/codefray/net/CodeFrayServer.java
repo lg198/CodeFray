@@ -1,5 +1,6 @@
 package com.github.lg198.codefray.net;
 
+import com.github.lg198.codefray.game.CFGame;
 import com.github.lg198.codefray.net.protocol.CFProtocolFactory;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactory;
@@ -17,13 +18,15 @@ public class CodeFrayServer {
     public static final int PORT = 43444;
 
     private static NioSocketAcceptor acceptor;
+    private static CFGame game;
 
-    public static void start() throws IOException {
+    public static void start(CFGame g) throws IOException {
         acceptor = new NioSocketAcceptor();
+        game = g;
 
         acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new CFProtocolFactory()));
 
-        acceptor.setHandler(new CFServerHandler());
+        acceptor.setHandler(new CFServerHandler(game));
 
         acceptor.bind(new InetSocketAddress(PORT));
     }
