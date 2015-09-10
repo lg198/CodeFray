@@ -3,6 +3,7 @@ package com.github.lg198.codefray.jfx;
 import com.github.lg198.codefray.api.game.Team;
 import com.github.lg198.codefray.game.CFGame;
 import com.github.lg198.codefray.game.golem.CFGolem;
+import com.github.lg198.codefray.util.Stylizer;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -10,13 +11,12 @@ import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
 import java.util.ListIterator;
 
@@ -43,7 +43,8 @@ public class OptionsPanel {
         redHealth.setProgress(rh);
     }
 
-    public VBox build() {
+    public StackPane build() {
+        StackPane overlay = new StackPane();
         vbox.setSpacing(20);
         vbox.setPadding(new Insets(10));
         vbox.getChildren().add(buildGameBox());
@@ -67,7 +68,47 @@ public class OptionsPanel {
         speedBox.getChildren().addAll(speedLabel, speedSlider);
         vbox.getChildren().add(speedBox);
 
-        return vbox;
+
+        overlay.getChildren().add(vbox);
+
+        Rectangle backRect = new Rectangle();
+        backRect.widthProperty().bind(overlay.widthProperty());
+        backRect.heightProperty().bind(overlay.heightProperty());
+
+        backRect.setFill(Color.BLACK);
+        backRect.setOpacity(0.65);
+        overlay.getChildren().add(backRect);
+
+        Label start = new Label("Start Game");
+        start.setPadding(new Insets(20));
+        Stylizer.set(start, "-fx-font-size", "30px");
+        start.setOnMouseClicked(event -> {
+            overlay.getChildren().remove(2);
+            overlay.getChildren().remove(1);
+            game.start();
+            update();
+        });
+        start.hoverProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                Stylizer.set(start, "-fx-background-color", "derive(lightblue, 30%)");
+            } else {
+                Stylizer.remove(start, "-fx-background-color");
+            }
+        });
+
+        GridPane gp = new GridPane();
+        gp.setAlignment(Pos.CENTER);
+        VBox box = new VBox();
+        box.getChildren().add(start);
+        Stylizer.set(box, "-fx-background-color", "whitesmoke");
+        gp.add(box, 0, 0);
+        start.setCursor(Cursor.HAND);
+        overlay.getChildren().add(gp);
+
+        overlay.setAlignment(Pos.CENTER);
+
+
+        return overlay;
     }
 
     private VBox buildGameBox() {

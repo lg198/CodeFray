@@ -14,6 +14,8 @@ import com.github.lg198.codefray.game.map.*;
 import com.github.lg198.codefray.jfx.CodeFrayApplication;
 import com.github.lg198.codefray.jfx.MainGui;
 import com.github.lg198.codefray.jfx.OptionsPanel;
+import com.github.lg198.codefray.net.CFServerHandler;
+import com.github.lg198.codefray.net.CodeFrayServer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -42,17 +44,29 @@ public class CFGame implements Game, GameBoardProvider {
 
     private int totalHealth;
 
-    public CFGame(CFMap m, Map<Team, CFGolemController> cm) {
+    private boolean broadcasted = false;
+
+    public CFGame(CFMap m, Map<Team, CFGolemController> cm, boolean bc) {
         map = m;
         teams = Team.values();
         controllerMap = cm;
-        gui = new MainGui(this, true);
+        gui = new MainGui(this, bc);
 
         File folder = new File(System.getProperty("user.home"), ".codefray_v1");
         if (!folder.exists()) {
             folder.mkdir();
         }
         log = new GameLog(this, folder);
+
+        broadcasted = bc;
+
+        if (bc) {
+            
+        }
+    }
+
+    public boolean isBroadcasted() {
+        return broadcasted;
     }
 
     public CFGolemController getController(Team t) {

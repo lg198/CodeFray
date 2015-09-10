@@ -4,14 +4,11 @@ import com.github.lg198.codefray.net.protocol.packet.Packet;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 
-public class CFServerHandler extends IoHandlerAdapter {
+public class CFClientHandler extends IoHandlerAdapter {
 
     @Override
     public void sessionOpened(IoSession session) {
-        System.out.println("[SERVER] Client connected!");
-        CodeFrayServer.ServerClient client = new CodeFrayServer.ServerClient();
-        client.id = session.getId();
-        CodeFrayServer.clients.add(client);
+        System.out.println("[CLIENT] Connected to server!");
     }
 
     @Override
@@ -21,6 +18,7 @@ public class CFServerHandler extends IoHandlerAdapter {
 
     @Override
     public void sessionClosed(IoSession session) {
-        System.out.println("[SERVER] Client disconnected!");
+        System.out.println("[CLIENT] Disconnected!");
+        session.getService().dispose();
     }
 }

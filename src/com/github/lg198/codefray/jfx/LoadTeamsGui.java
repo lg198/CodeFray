@@ -41,10 +41,14 @@ public class LoadTeamsGui {
     private TextField mapField = new TextField();
     private Button mapBrowseButton = new Button();
 
-    public LoadTeamsGui(ControllerLoader l) {
+    private boolean broadcasted = false;
+
+    public LoadTeamsGui(ControllerLoader l, boolean b) {
         loader = l;
 
         loadButtonImages();
+
+        broadcasted = b;
     }
 
     private void loadButtonImages() {
@@ -169,7 +173,7 @@ public class LoadTeamsGui {
                     warningLabel.setText("Map Error: Cannot be found!");
                     return;
                 }
-               CodeFrayApplication.switchToGame(red, blue, mapField.getText());
+               CodeFrayApplication.switchToGame(red, blue, mapField.getText(), broadcasted);
             }
         });
 

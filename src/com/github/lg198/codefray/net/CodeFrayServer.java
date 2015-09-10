@@ -16,9 +16,9 @@ public class CodeFrayServer {
 
     public static final int PORT = 43444;
 
-    private NioSocketAcceptor acceptor;
+    private static NioSocketAcceptor acceptor;
 
-    public void start() throws IOException {
+    public static void start() throws IOException {
         acceptor = new NioSocketAcceptor();
 
         acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new CFProtocolFactory()));
@@ -28,7 +28,7 @@ public class CodeFrayServer {
         acceptor.bind(new InetSocketAddress(PORT));
     }
 
-    public void stop() throws IOException {
+    public static void stop() throws IOException {
         acceptor.dispose(true);
     }
 

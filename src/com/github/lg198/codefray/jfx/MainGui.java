@@ -1,9 +1,17 @@
 package com.github.lg198.codefray.jfx;
 
 import com.github.lg198.codefray.game.CFGame;
+import com.github.lg198.codefray.util.Stylizer;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 
 public class MainGui {
 
@@ -30,7 +38,7 @@ public class MainGui {
     public AnchorPane build() {
         if (!broadcast) {
             AnchorPane ap = new AnchorPane();
-            VBox p = panel.build();
+            StackPane p = panel.build();
             Canvas c = board.build();
             c.heightProperty().bind(ap.heightProperty());
             c.widthProperty().bind(ap.widthProperty().add(p.widthProperty().negate()));
@@ -43,7 +51,7 @@ public class MainGui {
             return ap;
         } else {
             AnchorPane ap = new AnchorPane();
-            VBox p1 = panel.build();
+            StackPane p1 = panel.build();
             VBox p2 = bpanel.build();
             Canvas c = board.build();
             c.heightProperty().bind(ap.heightProperty());
@@ -58,6 +66,7 @@ public class MainGui {
 
             return ap;
         }
+
     }
 
     public void update() {

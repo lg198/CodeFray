@@ -35,26 +35,26 @@ public class CodeFrayApplication extends Application {
         new StartGui().launch();
     }
 
-    private static void startGame(Stage stage, CFGolemController red, CFGolemController blue, File mapFile) {
+    private static void startGame(Stage stage, CFGolemController red, CFGolemController blue, File mapFile, boolean broadcasted) {
         CFMap testMap = MapLoader.loadMap(mapFile);
         Map<Team, CFGolemController> cmap = new HashMap<>();
         cmap.put(Team.RED, red);
         cmap.put(Team.BLUE, blue);
-        CFGame testGame = new CFGame(testMap, cmap);
+        CFGame testGame = new CFGame(testMap, cmap, broadcasted);
         Parent box = testGame.getGui().build();
         Scene sc = new Scene(box, 750, 520);
         stage.setScene(sc);
         stage.show();
-        testGame.start();
-        testGame.getGui().update();
+        //testGame.start();
+        //testGame.getGui().update();
 
         primaryStage.setMaximized(true);
         primaryStage.setTitle("CodeFray: " + testGame.getController(Team.RED).name + " vs " + testGame.getController(Team.RED).name);
     }
 
-    public static void switchToGame(CFGolemController red, CFGolemController blue, String mapString) {
+    public static void switchToGame(CFGolemController red, CFGolemController blue, String mapString, boolean broadcasted) {
         primaryStage.hide();
-        startGame(primaryStage, red, blue, new File(mapString));
+        startGame(primaryStage, red, blue, new File(mapString), broadcasted);
     }
 
     public static void switchToResult(GameStatistics stats, File logFile) {
@@ -67,7 +67,16 @@ public class CodeFrayApplication extends Application {
 
     public static void startLocalGame() {
         ControllerLoader l = new ControllerLoader();
-        LoadTeamsGui gui = new LoadTeamsGui(l);
+        LoadTeamsGui gui = new LoadTeamsGui(l, false);
+        Scene scene = new Scene(gui.build());
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("Load Game");
+        primaryStage.show();
+    }
+
+    public static void startBroadcastedGame() {
+        ControllerLoader l = new ControllerLoader();
+        LoadTeamsGui gui = new LoadTeamsGui(l, true);
         Scene scene = new Scene(gui.build());
         primaryStage.setScene(scene);
         primaryStage.setTitle("Load Game");
