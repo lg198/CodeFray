@@ -1,10 +1,13 @@
 package com.github.lg198.codefray.game.map;
 
 import com.github.lg198.codefray.api.game.Team;
+import com.github.lg198.codefray.api.game.TileType;
 import com.github.lg198.codefray.api.math.Direction;
 import com.github.lg198.codefray.api.math.Point;
 import com.github.lg198.codefray.api.math.Vector;
 import com.github.lg198.codefray.game.golem.CFGolem;
+import com.github.lg198.codefray.net.protocol.packet.PacketGameInfo;
+import com.github.lg198.codefray.net.protocol.packet.PacketMapData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,12 +25,15 @@ public class CFMap {
     public int getWidth() {
         return width;
     }
+    private final CFGolem[][] golemMap;
 
 
     public CFMap(MapTile[][] m, String n, String a) {
         map = m;
         width = map.length;
         height = map[0].length;
+
+        golemMap = new CFGolem[map.length][map[0].length];
 
         name = n;
         author = a;
@@ -77,6 +83,15 @@ public class CFMap {
         return tiles;
     }
 
+    public void moveGolem(CFGolem g, Point oldPoint) {
+        golemMap[oldPoint.getX()][oldPoint.getY()] = null;
+        golemMap[g.getLocation().getX()][g.getLocation().getY()] = g;
+    }
+
+    public void removeGolem(CFGolem g) {
+        golemMap[g.getLocation().getX()][g.getLocation().getY()] = null;
+    }
+
     public <T extends MapTile> List<T> getTilesOfType(Class<T> type, Point p, int radius2) {
         List<T> tiles = new ArrayList<T>();
         for (MapTile[] mta : map) {
@@ -118,6 +133,44 @@ public class CFMap {
             return false;
         }
         return true;
+    }
+
+    public void writePacket(PacketMapData p) {
+        List<int[]> golemEntries = new ArrayList<>();
+        for (CFGolem[] arr : golemMap) {
+            for (CFGolem g : arr) {
+                if (g == null) {
+                    continue;
+                }
+                golemEntries.add(new int[]{g.getType().ordinal(), g.getType().ordinal()});
+            }
+        }
+        p.golems = golemEntries.toArray(new int[0][0]);
+        p.mapAuthor = author;
+        p.mapName = name;
+        p.mapWidth = width;
+        p.mapHeight = height;
+
+        int[][][] tiles = new int[width][height][];
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                MapTile mt = map[x][y];
+                if (mt == null) {
+                    tiles[x][y] = new int[]{0};
+                    continue;
+                }
+                List<Integer> info = new ArrayList<>();
+                info.add(mt.getTileType().ordinal());
+                if (mt.getTileType() == TileType.FLAG) {
+                    FlagTile ft = (FlagTile) mt;
+                    info.add(ft.getTeam().ordinal());
+                } else if (mt.getTileType() == TileType.WIN) {
+                    WinTile wt = (WinTile) mt;
+                    info.add(wt.getTeam().ordinal());
+                }
+                tiles[x][y] = info.toArray();
+            }
+        }
     }
 
 }

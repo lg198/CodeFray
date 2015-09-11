@@ -16,6 +16,7 @@ import com.github.lg198.codefray.jfx.MainGui;
 import com.github.lg198.codefray.jfx.OptionsPanel;
 import com.github.lg198.codefray.net.CFServerHandler;
 import com.github.lg198.codefray.net.CodeFrayServer;
+import com.github.lg198.codefray.net.protocol.packet.PacketMapData;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -173,6 +174,7 @@ public class CFGame implements Game, GameBoardProvider {
             CFGolem g = gi.next();
             if (g.getHealth() <= 0) {
                 gi.remove();
+                map.removeGolem(g);
                 map.setTile(g.getLocation(), null);
                 if (g.isHoldingFlag()) {
                     map.setTile(g.getLocation(), new FlagTile(g.getHeldFlag()));
@@ -320,5 +322,7 @@ public class CFGame implements Game, GameBoardProvider {
         CFGolem match = golems.stream().filter(g -> g.getId() == id).limit(1).collect(Collectors.toList()).get(0);
         return match.getTeam();
     }
+
+
 
 }

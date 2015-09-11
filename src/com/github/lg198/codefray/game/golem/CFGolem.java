@@ -119,7 +119,9 @@ public class CFGolem implements Golem {
             return;
         }
         if (game.getMap().isGolemMoveValid(this, d)) {
+            Point old = getLocation();
             setLocation(getLocation().in(d));
+            game.getMap().moveGolem(this, old);
             movesLeft--;
         }
     }
