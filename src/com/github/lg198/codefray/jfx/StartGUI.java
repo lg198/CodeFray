@@ -63,7 +63,8 @@ public class StartGui {
             } else if (e.getSource() == eyeBox) {
                 System.out.println("eye");
             } else {
-                System.out.println("upload");
+                stage.close();
+                CodeFrayApplication.startBroadcastedGame();
             }
         };
 

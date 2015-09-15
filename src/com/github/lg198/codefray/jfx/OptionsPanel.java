@@ -215,6 +215,13 @@ public class OptionsPanel {
         GridPane.setHalignment(health, HPos.CENTER);
         gp.add(health, 0, 3, 2, 1);
 
+        if (g.isHoldingFlag()) {
+            Label flag = new Label("Has Flag");
+            Stylizer.set(flag, "-fx-font-size", "16px");
+            GridPane.setHalignment(flag, HPos.CENTER);
+            gp.add(flag, 0, 4, 2, 1);
+        }
+
         gp.getProperties().put("golemBox", true);
 
         ColumnConstraints cc = new ColumnConstraints();

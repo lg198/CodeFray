@@ -117,6 +117,11 @@ public final class CFGolemWrapper implements Golem {
     }
 
     @Override
+    public boolean canMove(Direction d) {
+        return golem.canMove(d);
+    }
+
+    @Override
     public TileType detectTile(Direction d) {
         check();
         return golem.detectTile(d);

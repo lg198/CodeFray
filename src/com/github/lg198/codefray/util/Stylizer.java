@@ -1,6 +1,7 @@
 package com.github.lg198.codefray.util;
 
 import javafx.scene.Node;
+import javafx.scene.text.Text;
 
 import java.util.Arrays;
 import java.util.regex.Pattern;
@@ -46,6 +47,19 @@ public class Stylizer {
             }
             return true;
         }).collect(Collectors.joining(";")));
+    }
+
+    public static Text text(String text, String... style) {
+        if (style.length % 2 != 0) {
+            throw new IllegalArgumentException("Style must be even!");
+        }
+
+        Text t = new Text(text);
+        for (int i = 0; i < style.length; i+=2) {
+            set(t, style[i], style[i+1]);
+        }
+
+        return t;
     }
 
 

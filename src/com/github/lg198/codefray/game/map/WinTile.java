@@ -28,4 +28,9 @@ public class WinTile extends MapTile implements GolemHabitat {
         ((CFGame) g.getGame()).stop(new GameEndReason.Win(g.getTeam(), GameEndReason.Win.Reason.FLAG));
         return true;
     }
+
+    @Override
+    public boolean canGolemEnter(CFGolem g) {
+        return g.getTeam() == team && g.isHoldingFlag();
+    }
 }

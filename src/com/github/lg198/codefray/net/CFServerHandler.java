@@ -5,8 +5,12 @@ import com.github.lg198.codefray.game.CFGame;
 import com.github.lg198.codefray.net.protocol.packet.Packet;
 import com.github.lg198.codefray.net.protocol.packet.PacketGameInfo;
 import com.github.lg198.codefray.net.protocol.packet.PacketHelloServer;
+import com.github.lg198.codefray.net.protocol.packet.PacketMapData;
+import com.github.lg198.codefray.util.Stylizer;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
+
+import java.util.ListIterator;
 
 public class CFServerHandler extends IoHandlerAdapter {
 
@@ -22,6 +26,7 @@ public class CFServerHandler extends IoHandlerAdapter {
         CodeFrayServer.ServerClient client = new CodeFrayServer.ServerClient();
         client.id = session.getId();
         CodeFrayServer.clients.add(client);
+        game.getGui().bpanel.setViewers(CodeFrayServer.clients.size());
     }
 
     @Override
@@ -40,18 +45,37 @@ public class CFServerHandler extends IoHandlerAdapter {
             sc.username = ((PacketHelloServer) p).name;
 
             PacketGameInfo info = new PacketGameInfo();
-            info.blueControllerName = game.getController(Team.BLUE).name;
-            info.redControllerName = game.getController(Team.RED).name;
-            info.redName = game.getController(Team.RED).devId;
-            info.blueName = game.getController(Team.BLUE).devId;
-            info.gameStarted = game.isRunning();
-
+            game.fillPacket(info);
             session.write(info);
+
+            PacketMapData data = new PacketMapData();
+            game.getMap().writePacket(data);
+            session.write(data);
         }
     }
 
     @Override
     public void sessionClosed(IoSession session) {
         System.out.println("[SERVER] Client disconnected!");
+        ListIterator<CodeFrayServer.ServerClient> ci = CodeFrayServer.clients.listIterator();
+        while (ci.hasNext()) {
+            CodeFrayServer.ServerClient client = ci.next();
+            if (client.id == session.getId()) {
+                game.getGui().bpanel.addLine(
+                        Stylizer.text(
+                                client.username,
+                                "-fx-font-weight", "bold",
+                                "-fx-fill", "red"
+                        ),
+                        Stylizer.text(
+                                " has disconnected.",
+                                "-fx-fill", "red"
+                        )
+                );
+                ci.remove();
+                break;
+            }
+        }
+        game.getGui().bpanel.setViewers(CodeFrayServer.clients.size());
     }
 }

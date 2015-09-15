@@ -1,28 +1,27 @@
 
 package com.github.lg198.codefray.game;
 
-import com.github.lg198.codefray.api.golem.GolemController;
-import com.github.lg198.codefray.api.golem.GolemType;
-import com.github.lg198.codefray.api.math.*;
 import com.github.lg198.codefray.api.game.Game;
 import com.github.lg198.codefray.api.game.Team;
+import com.github.lg198.codefray.api.game.TileType;
+import com.github.lg198.codefray.api.golem.GolemType;
+import com.github.lg198.codefray.api.math.Point;
 import com.github.lg198.codefray.api.math.Vector;
+import com.github.lg198.codefray.game.GameEndReason.Infraction;
 import com.github.lg198.codefray.game.golem.CFGolem;
 import com.github.lg198.codefray.game.golem.CFGolemController;
 import com.github.lg198.codefray.game.golem.CFGolemWrapper;
 import com.github.lg198.codefray.game.map.*;
 import com.github.lg198.codefray.jfx.CodeFrayApplication;
 import com.github.lg198.codefray.jfx.MainGui;
-import com.github.lg198.codefray.jfx.OptionsPanel;
-import com.github.lg198.codefray.net.CFServerHandler;
 import com.github.lg198.codefray.net.CodeFrayServer;
-import com.github.lg198.codefray.net.protocol.packet.PacketMapData;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
+import com.github.lg198.codefray.net.protocol.packet.*;
+import com.github.lg198.codefray.util.ErrorAlert;
+import com.github.lg198.codefray.util.Stylizer;
 import javafx.application.Platform;
-import javafx.util.Duration;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -62,7 +61,21 @@ public class CFGame implements Game, GameBoardProvider {
         broadcasted = bc;
 
         if (bc) {
-            
+            try {
+                CodeFrayServer.start(this);
+                gui.bpanel.addLine(Stylizer.text(
+                        "Server started successfully.",
+                        "-fx-fill", "green",
+                        "-fx-font-weight", "bold"));
+            } catch (IOException e) {
+                ErrorAlert.createAlert(
+                        "Error",
+                        "Broadcast Error",
+                        "An error has occurred during an attempt to start the broadcast server.",
+                        e
+                ).showAndWait();
+                throw new RuntimeException("Failed game initialization", e);
+            }
         }
     }
 
@@ -98,6 +111,7 @@ public class CFGame implements Game, GameBoardProvider {
             CFGolem golem = new CFGolem(this, type, team, id++);
             golem.setLocation(t.getMapPosition());
             golems.add(golem);
+            map.addGolem(golem);
         }
 
         for (CFGolem g : golems) {
@@ -113,6 +127,15 @@ public class CFGame implements Game, GameBoardProvider {
         });
         running = true;
         clock.start();
+
+        if (broadcasted) {
+            PacketGameInfo info = new PacketGameInfo();
+            fillPacket(info);
+            CodeFrayServer.safeBroadcast(info);
+            PacketMapData data = new PacketMapData();
+            map.writePacket(data);
+            CodeFrayServer.safeBroadcast(data);
+        }
     }
 
     public void setClockSpeed(int s) {
@@ -157,14 +180,45 @@ public class CFGame implements Game, GameBoardProvider {
                 CodeFrayApplication.switchToResult(s, log.getLogFile());
             }
         });
+
+        if (broadcasted) {
+            try {
+                CodeFrayServer.stop(reason);
+            } catch (IOException e) {
+                ErrorAlert.createAlert(
+                        "Error",
+                        "Broadcast Error",
+                        "An error occurred while attempting to shut down the broadcast server.",
+                        e
+                ).showAndWait();
+            }
+        }
+
         return s;
     }
 
     public void onRound() {
+        if (broadcasted) {
+            PacketRoundUpdate pru = new PacketRoundUpdate();
+            pru.round = getRound();
+            CodeFrayServer.safeBroadcast(pru);
+        }
         Collections.shuffle(golems);
         for (CFGolem g : golems) {
             g.update();
-            controllerMap.get(g.getTeam()).onRound(new CFGolemWrapper(round, g));
+            try {
+                controllerMap.get(g.getTeam()).onRound(new CFGolemWrapper(round, g));
+            } catch (Exception e) {
+                GameEndReason.Infraction inf = new GameEndReason.Infraction(g.getTeam(), GameEndReason.Infraction.Type.EXCEPTION);
+                stop(inf);
+                return;
+            }
+            if (broadcasted) {
+                PacketGolemUpdate pgu = new PacketGolemUpdate();
+                pgu.id = g.getId();
+                pgu.health = g.getHealth();
+                CodeFrayServer.safeBroadcast(pgu);
+            }
             if (!running) { //TO STOP GAME IN MIDDLE OF ROUND
                 break;
             }
@@ -176,14 +230,27 @@ public class CFGame implements Game, GameBoardProvider {
                 gi.remove();
                 map.removeGolem(g);
                 map.setTile(g.getLocation(), null);
+                if (broadcasted) {
+                    PacketGolemDie pgd = new PacketGolemDie();
+                    pgd.id = g.getId();
+                    CodeFrayServer.safeBroadcast(pgd);
+                }
                 if (g.isHoldingFlag()) {
                     map.setTile(g.getLocation(), new FlagTile(g.getHeldFlag()));
+                    if (broadcasted) {
+                        PacketMapUpdate pmu = new PacketMapUpdate();
+                        pmu.x = g.getLocation().getX();
+                        pmu.y = g.getLocation().getY();
+                        pmu.type = TileType.FLAG.ordinal();
+                        pmu.data = new int[]{g.getHeldFlag().ordinal()};
+                        CodeFrayServer.safeBroadcast(pmu);
+                    }
                 }
             }
         }
 
         for (Team t : teams) {
-            if (getPercentHealth(t) == 0d) {
+            if (getPercentHealth(t) <= 0d) {
                 stop(new GameEndReason.Win(t == Team.RED ? Team.BLUE : Team.RED, GameEndReason.Win.Reason.DEATH));
                 return;
             }
@@ -323,6 +390,12 @@ public class CFGame implements Game, GameBoardProvider {
         return match.getTeam();
     }
 
-
+    public void fillPacket(PacketGameInfo info) {
+        info.blueControllerName = getController(Team.BLUE).name;
+        info.redControllerName = getController(Team.RED).name;
+        info.redName = getController(Team.RED).devId;
+        info.blueName = getController(Team.BLUE).devId;
+        info.gameStarted = isRunning();
+    }
 
 }

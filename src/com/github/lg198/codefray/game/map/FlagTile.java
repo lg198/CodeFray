@@ -2,6 +2,7 @@ package com.github.lg198.codefray.game.map;
 
 import com.github.lg198.codefray.api.game.Team;
 import com.github.lg198.codefray.api.game.TileType;
+import com.github.lg198.codefray.game.CFGame;
 import com.github.lg198.codefray.game.golem.CFGolem;
 
 public class FlagTile extends MapTile implements GolemHabitat {
@@ -28,6 +29,13 @@ public class FlagTile extends MapTile implements GolemHabitat {
         }
 
         g.setHasFlag(team);
+
+        ((CFGame) g.getGame()).getMap().setTile(getMapPosition(), null);
         return true;
+    }
+
+    @Override
+    public boolean canGolemEnter(CFGolem g) {
+        return g.getTeam() != team && !g.isHoldingFlag();
     }
 }

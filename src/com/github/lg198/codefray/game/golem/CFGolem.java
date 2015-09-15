@@ -13,6 +13,8 @@ import com.github.lg198.codefray.api.math.Vector;
 import com.github.lg198.codefray.game.CFGame;
 import com.github.lg198.codefray.game.map.MapTile;
 import com.github.lg198.codefray.game.map.WallTile;
+import com.github.lg198.codefray.net.CodeFrayServer;
+import com.github.lg198.codefray.net.protocol.packet.PacketGolemMove;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -114,6 +116,11 @@ public class CFGolem implements Golem {
     }
 
     @Override
+    public boolean canMove(Direction d) {
+        return game.getMap().isGolemMoveValid(this, d);
+    }
+
+    @Override
     public void move(Direction d) {
         if (movesLeft <= 0) {
             return;
@@ -123,6 +130,13 @@ public class CFGolem implements Golem {
             setLocation(getLocation().in(d));
             game.getMap().moveGolem(this, old);
             movesLeft--;
+            if (game.isBroadcasted()) {
+                PacketGolemMove pgm = new PacketGolemMove();
+                pgm.id = getId();
+                pgm.x = getLocation().getX();
+                pgm.y = getLocation().getY();
+                CodeFrayServer.safeBroadcast(pgm);
+            }
         }
     }
 
@@ -136,11 +150,14 @@ public class CFGolem implements Golem {
         if (shotsLeft-- <= 0) {
             return;
         }
+        if (gi.getTeam() == getTeam()) {
+            return;
+        }
         CFGolemInfoWrapper wrapper = (CFGolemInfoWrapper) gi;
         double max = getType().getMaxSearchRadiusSquared();
         double dist = Vector.between(getLocation(), wrapper.getLocation()).getMagnitudeSquared();
         int strength = (int) (((max - dist) / max) * getType().getMaxShotStrength());
-        wrapper.getGolem().setHealth(wrapper.getGolem().getHealth() - strength);
+        wrapper.getGolem().setHealth(Math.max(wrapper.getGolem().getHealth() - strength, 0));
     }
 
     @Override

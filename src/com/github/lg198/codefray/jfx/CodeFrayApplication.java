@@ -8,7 +8,9 @@ import com.github.lg198.codefray.game.golem.CFGolemController;
 import com.github.lg198.codefray.game.map.CFMap;
 import com.github.lg198.codefray.load.ControllerLoader;
 import com.github.lg198.codefray.load.MapLoader;
+import com.github.lg198.codefray.util.ErrorAlert;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -40,13 +42,17 @@ public class CodeFrayApplication extends Application {
         Map<Team, CFGolemController> cmap = new HashMap<>();
         cmap.put(Team.RED, red);
         cmap.put(Team.BLUE, blue);
-        CFGame testGame = new CFGame(testMap, cmap, broadcasted);
+        CFGame testGame;
+        try {
+            testGame = new CFGame(testMap, cmap, broadcasted);
+        } catch (RuntimeException e) {
+            Platform.runLater(() -> new StartGui().launch());
+            return;
+        }
         Parent box = testGame.getGui().build();
         Scene sc = new Scene(box, 750, 520);
         stage.setScene(sc);
         stage.show();
-        //testGame.start();
-        //testGame.getGui().update();
 
         primaryStage.setMaximized(true);
         primaryStage.setTitle("CodeFray: " + testGame.getController(Team.RED).name + " vs " + testGame.getController(Team.RED).name);

@@ -6,6 +6,7 @@ import com.github.lg198.codefray.api.math.Direction;
 import com.github.lg198.codefray.api.math.Point;
 import com.github.lg198.codefray.api.math.Vector;
 import com.github.lg198.codefray.game.golem.CFGolem;
+import com.github.lg198.codefray.net.CodeFrayServer;
 import com.github.lg198.codefray.net.protocol.packet.PacketGameInfo;
 import com.github.lg198.codefray.net.protocol.packet.PacketMapData;
 
@@ -35,8 +36,13 @@ public class CFMap {
 
         golemMap = new CFGolem[map.length][map[0].length];
 
+
         name = n;
         author = a;
+    }
+
+    public void addGolem(CFGolem g) {
+        golemMap[g.getLocation().getX()][g.getLocation().getY()] = g;
     }
 
     public String getName() {
@@ -84,6 +90,11 @@ public class CFMap {
     }
 
     public void moveGolem(CFGolem g, Point oldPoint) {
+        if (map[g.getLocation().getX()][g.getLocation().getY()] instanceof GolemHabitat) {
+            if (!((GolemHabitat)map[g.getLocation().getX()][g.getLocation().getY()]).onGolemEnter(g)) {
+                return;
+            }
+        }
         golemMap[oldPoint.getX()][oldPoint.getY()] = null;
         golemMap[g.getLocation().getX()][g.getLocation().getY()] = g;
     }
@@ -129,10 +140,16 @@ public class CFMap {
         }
         if (getTile(after) == null) return true;
         if (!(getTile(after) instanceof GolemHabitat)) return false;
-        if (!((GolemHabitat)getTile(after)).onGolemEnter(g)) {
+        if (!((GolemHabitat)getTile(after)).canGolemEnter(g)) {
             return false;
         }
+        if (containsGolem(after)) return false;
+
         return true;
+    }
+
+    public boolean containsGolem(Point p) {
+        return golemMap[p.getX()][p.getY()] != null;
     }
 
     public void writePacket(PacketMapData p) {
@@ -159,18 +176,19 @@ public class CFMap {
                     tiles[x][y] = new int[]{0};
                     continue;
                 }
-                List<Integer> info = new ArrayList<>();
-                info.add(mt.getTileType().ordinal());
+                int[] info = new int[]{mt.getTileType().ordinal()};
                 if (mt.getTileType() == TileType.FLAG) {
                     FlagTile ft = (FlagTile) mt;
-                    info.add(ft.getTeam().ordinal());
+                    info = new int[]{info[0], ft.getTeam().ordinal()};
                 } else if (mt.getTileType() == TileType.WIN) {
                     WinTile wt = (WinTile) mt;
-                    info.add(wt.getTeam().ordinal());
+                    info = new int[]{info[0], wt.getTeam().ordinal()};
                 }
-                tiles[x][y] = info.toArray();
+                tiles[x][y] = info;
             }
         }
+
+        p.tiles = tiles;
     }
 
 }

@@ -1,20 +1,23 @@
 package com.github.lg198.codefray.jfx;
 
 import com.github.lg198.codefray.game.CFGame;
-import com.github.lg198.codefray.util.AccumulatorLogger;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
+import javafx.scene.text.TextFlow;
 
 public class BroadcastPanel {
 
     private VBox panel = new VBox();
-    private TextArea logArea = new TextArea();
     private Label viewersLabel = new Label("0");
-    public AccumulatorLogger logger = new AccumulatorLogger();
+    private TextFlow logFlow = new TextFlow();
+    private ScrollPane flowScroll = new ScrollPane(logFlow);
+    private int limit = 100;
 
     private final CFGame game;
 
@@ -60,18 +63,34 @@ public class BroadcastPanel {
         log.setAlignment(Pos.CENTER);
 
         log.getChildren().add(new Label("Broadcast Log:"));
-        logArea.setMaxWidth(200);
-        logger.setListener((String s) -> {
-            logArea.setText(s);
-            logArea.setScrollTop(Double.MAX_VALUE);
-        });
-        log.getChildren().add(logArea);
+        logFlow.setMaxWidth(350);
+        logFlow.setTextAlignment(TextAlignment.LEFT);
+        flowScroll.setMaxWidth(350);
+        log.getChildren().add(flowScroll);
 
         return log;
     }
 
     public void update() {
+    }
 
+    public void setViewers(int v) {
+        viewersLabel.setText(v + "");
+    }
+
+    public void addLine(Text... ts) {
+        for (int i = 0; i < ts.length; i++) {
+            if (logFlow.getChildren().size() >= limit) {
+                logFlow.getChildren().remove(0);
+            }
+
+            if (i + 1 == ts.length) ts[i].setText(ts[i].getText() + "\n");
+
+            logFlow.getChildren().add(ts[i]);
+        }
+        logFlow.layout();
+        flowScroll.layout();
+        flowScroll.setVvalue(1.0f);
     }
 
 }

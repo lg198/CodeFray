@@ -1,11 +1,12 @@
 package com.github.lg198.codefray.controllers;
 
 import com.github.lg198.codefray.api.game.Team;
-import com.github.lg198.codefray.api.game.TileType;
 import com.github.lg198.codefray.api.golem.ControllerDef;
 import com.github.lg198.codefray.api.golem.Golem;
 import com.github.lg198.codefray.api.golem.GolemController;
+import com.github.lg198.codefray.api.golem.GolemType;
 import com.github.lg198.codefray.api.math.Direction;
+import com.github.lg198.codefray.api.math.Point;
 
 @ControllerDef(
         id = "com.github.lg198.Default",
@@ -26,27 +27,62 @@ public class DefaultController implements GolemController {
             otherTeam = thisTeam == Team.BLUE ? Team.RED : Team.BLUE;
             initialized = true;
             cd = g.getFlagDirection(otherTeam);
-            System.out.println("CD: " + cd);
+            System.out.println(g.getType());
         }
 
-        Direction next = determineNext(g);
-        if (next != null) {
-            cd = next;
-            g.move(next);
-        }
-
-
-    }
-
-    public Direction determineNext(Golem g) {
-        Direction d = cd;
-        do {
-            if (g.detectTile(d) == TileType.EMPTY) {
-                return d;
+        if (g.getType() == GolemType.RUNNER) {
+            while (g.getMovesLeft() > 0) {
+                Direction toFlag = g.getFlagDirection(otherTeam);
+                if (toFlag == null) {
+                    break;
+                }
+                if (!g.canMove(toFlag)) {
+                    Direction temp = toFlag;
+                    boolean moved = false;
+                    do {
+                        temp = toFlag.clockwise();
+                        if (g.canMove(temp)) {
+                            moved = true;
+                            break;
+                        }
+                    } while (toFlag != temp);
+                    if (!moved) {
+                        g.search().forEach(golem -> {
+                            if (g.getShotsLeft() > 0) g.shoot(golem);
+                        });
+                        return;
+                    }
+                    g.move(temp);
+                }
+                g.move(toFlag);
             }
-            d = d.clockwise();
-        } while (d != cd);
-        return null;
+            return;
+        }
+
+        if (g.getType() == GolemType.DEFENDER) {
+            Point defpos = g.getGame().getFlagLocation(thisTeam).translate(0, -1);
+            if (!defpos.equals(g.getLocation())) {
+                Direction toMove = Direction.between(g.getLocation(), defpos);
+                while (g.getMovesLeft() > 0) {
+                    if (g.canMove(toMove)) {
+                        g.move(toMove);
+                        continue;
+                    }
+
+                    Direction temp = toMove;
+                    do {
+                        temp = toMove.clockwise();
+                        if (g.canMove(temp)) {
+                            g.move(temp);
+                            break;
+                        }
+                    } while (temp != toMove);
+                }
+            }
+            g.search().stream().limit(g.getShotsLeft()).forEach(golem -> g.shoot(golem));
+        }
+
+
     }
 
 }
