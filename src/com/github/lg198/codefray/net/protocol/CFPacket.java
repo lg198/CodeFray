@@ -34,6 +34,7 @@ public class CFPacket {
             put(9, PacketChatToClient.class);
 
             put(10, PacketGameEnd.class);
+            put(11, PacketGamePause.class);
 
         }
     };

@@ -5,7 +5,7 @@ import com.github.lg198.codefray.net.protocol.packet.PacketGameEnd;
 
 public abstract class GameEndReason {
 
-    public static int WIN_INDEX  = 0, INFRACTION_INDEX = 1, FORCED_INDEX = 2;
+    public static int WIN_INDEX = 0, INFRACTION_INDEX = 1, FORCED_INDEX = 2;
 
     public static final class Win extends GameEndReason {
         @Override

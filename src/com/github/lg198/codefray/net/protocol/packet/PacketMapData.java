@@ -36,11 +36,12 @@ public class PacketMapData extends Packet {
         golems = new int[gc][4];
         for (int i = 0; i < gc; i++) {
             int x = buff.getInt(), y = buff.getInt();
-            int type = buff.getInt(), team = buff.getInt();
+            int type = buff.getInt(), team = buff.getInt(), id = buff.getInt();
             golems[i][0] = x;
             golems[i][1] = y;
             golems[i][2] = type;
             golems[i][3] = team;
+            golems[i][4] = id;
         }
     }
 
@@ -73,6 +74,7 @@ public class PacketMapData extends Packet {
             buff.putInt(g[1]);
             buff.putInt(g[2]);
             buff.putInt(g[3]);
+            buff.putInt(g[4]);
         }
 
         buff.flip();

@@ -73,8 +73,4 @@ public class MainGui {
         panel.update();
         board.update();
     }
-
-    public void updateBroadcast() {
-        bpanel.update();
-    }
 }
