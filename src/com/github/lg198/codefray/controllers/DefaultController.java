@@ -81,8 +81,6 @@ public class DefaultController implements GolemController {
             }
             g.search().stream().limit(g.getShotsLeft()).forEach(golem -> g.shoot(golem));
         }
-
-
     }
 
 }

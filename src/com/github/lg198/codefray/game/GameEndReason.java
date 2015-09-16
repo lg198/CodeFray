@@ -37,7 +37,7 @@ public abstract class GameEndReason {
         }
 
         public static enum Type {
-            OUT_OF_ROUND, EXCEPTION
+            OUT_OF_ROUND, EXCEPTION, ARTIFICIAL_GOLEM_INFO;
         }
 
         public Type type;

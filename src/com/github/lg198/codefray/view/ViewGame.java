@@ -126,6 +126,6 @@ public class ViewGame implements GameBoardProvider {
 
     @Override
     public Team golemTeam(int id) {
-        
+
     }
 }

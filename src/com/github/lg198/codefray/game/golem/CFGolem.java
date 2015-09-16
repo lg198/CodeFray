@@ -11,6 +11,7 @@ import com.github.lg198.codefray.api.golem.GolemType;
 import com.github.lg198.codefray.api.math.Point;
 import com.github.lg198.codefray.api.math.Vector;
 import com.github.lg198.codefray.game.CFGame;
+import com.github.lg198.codefray.game.GameEndReason;
 import com.github.lg198.codefray.game.map.MapTile;
 import com.github.lg198.codefray.game.map.WallTile;
 import com.github.lg198.codefray.net.CodeFrayServer;
@@ -147,6 +148,9 @@ public class CFGolem implements Golem {
 
     @Override
     public void shoot(GolemInfo gi) {
+        if (!(gi instanceof CFGolemInfoWrapper)) {
+            game.stop(new GameEndReason.Infraction(getTeam(), GameEndReason.Infraction.Type.ARTIFICIAL_GOLEM_INFO));
+        }
         if (shotsLeft-- <= 0) {
             return;
         }
