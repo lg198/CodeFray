@@ -41,6 +41,10 @@ public class CFMap {
         author = a;
     }
 
+    public CFGolem golemAt(Point p) {
+        return golemMap[p.getX()][p.getY()];
+    }
+
     public void addGolem(CFGolem g) {
         golemMap[g.getLocation().getX()][g.getLocation().getY()] = g;
     }

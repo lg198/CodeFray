@@ -68,6 +68,8 @@ public class CodeFrayApplication extends Application {
         GameResultGui gui = new GameResultGui(stats);
         Scene sc = new Scene(gui.build());
         primaryStage.setScene(sc);
+        primaryStage.setMaximized(false);
+        primaryStage.setTitle("Result");
         primaryStage.show();
     }
 

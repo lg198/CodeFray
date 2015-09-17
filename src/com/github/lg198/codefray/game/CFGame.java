@@ -338,12 +338,7 @@ public class CFGame implements Game, GameBoardProvider {
     }
 
     public CFGolem golemAt(Point p) {
-        for (CFGolem g : golems) {
-            if (g.getLocation().equals(p)) {
-                return g;
-            }
-        }
-        return null;
+        return map.golemAt(p);
     }
 
     @Override
@@ -354,8 +349,11 @@ public class CFGame implements Game, GameBoardProvider {
 
     @Override
     public void selectGolem(int id) {
-        CFGolem match = golems.stream().filter(g -> g.getId() == id).limit(1).collect(Collectors.toList()).get(0);
-        getGui().panel.golemSelected(golems.get(id));
+        CFGolem match = golems.stream().filter(g -> g.getId() == id).limit(1).filter(g -> {
+            System.out.println("Found golem for id " + id + " that has id " + g.getId() + " and is on team " + g.getTeam());
+            return true;
+        }).collect(Collectors.toList()).get(0);
+        getGui().panel.golemSelected(match);
     }
 
     @Override

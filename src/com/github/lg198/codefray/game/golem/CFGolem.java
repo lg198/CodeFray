@@ -160,7 +160,11 @@ public class CFGolem implements Golem {
         CFGolemInfoWrapper wrapper = (CFGolemInfoWrapper) gi;
         double max = getType().getMaxSearchRadiusSquared();
         double dist = Vector.between(getLocation(), wrapper.getLocation()).getMagnitudeSquared();
-        int strength = (int) (((max - dist) / max) * getType().getMaxShotStrength());
+        int strength = (int) Math.ceil((((max - dist + 1) / max) * (double)getType().getMaxShotStrength()));
+        System.out.println(getId() + " shooting " + gi.getId() + ": ");
+        System.out.println("\tmax: " + max);
+        System.out.println("\tdist: " + dist);
+        System.out.println("\tstrength: " + strength);
         wrapper.getGolem().setHealth(Math.max(wrapper.getGolem().getHealth() - strength, 0));
     }
 

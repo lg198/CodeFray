@@ -116,16 +116,16 @@ public class ViewGame implements GameBoardProvider {
 
     @Override
     public MapTile getMapTileAt(Point p) {
-
+        return null;
     }
 
     @Override
     public int golemType(int id) {
-
+        return 0;
     }
 
     @Override
     public Team golemTeam(int id) {
-
+        return Team.BLUE;
     }
 }
