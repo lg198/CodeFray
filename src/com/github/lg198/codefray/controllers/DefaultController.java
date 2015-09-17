@@ -8,6 +8,8 @@ import com.github.lg198.codefray.api.math.Vector;
 
 import java.util.List;
 
+import java.util.List;
+
 @ControllerDef(
         id = "com.github.lg198.Default",
         name = "CodeFray v1 Included Controller - Default",
@@ -15,6 +17,7 @@ import java.util.List;
         devId = "dfc61082ebcc29a8eee96284e2a26e42")
 public class DefaultController implements GolemController {
 
+<<<<<<< HEAD
 
     @Override
     public void onRound(Golem g) {
@@ -29,9 +32,45 @@ public class DefaultController implements GolemController {
                     g.shoot(gi);
                 });
             }
+=======
+    public boolean initialized = false;
+
+    public Team thisTeam, otherTeam;
+
+    @Override
+    public void onRound(Golem g) {
+        if (!initialized) {
+            thisTeam = g.getTeam();
+            otherTeam = thisTeam == Team.BLUE ? Team.RED : Team.BLUE;
+            initialized = true;
+        }
+
+        if (g.getType() == GolemType.RUNNER) {
+            onRoundRunner(g);
+>>>>>>> d61b6d3f882fe54b63d01de359a957542844290b
         }
     }
 
+<<<<<<< HEAD
+=======
+    }
+
+    private void onRoundRunner(Golem g) {
+        shootAll(g);
+        if (g.getLocation().equals(g.getGame().getFlagLocation(otherTeam)) || g.isHoldingFlag()) {
+            boolean result;
+            do {
+                result = attemptMove(g, Direction.between(g.getLocation(), g.getGame().getWinLocation(thisTeam)));
+            } while (g.getMovesLeft() > 0 && result);
+            return;
+        }
+        boolean result;
+        do {
+            result = attemptMove(g, g.getFlagDirection(otherTeam));
+        } while (g.getMovesLeft() > 0 && result);
+    }
+
+>>>>>>> d61b6d3f882fe54b63d01de359a957542844290b
     private boolean attemptMove(Golem g, Direction direct) {
         Direction next = direct;
         do {
@@ -45,5 +84,12 @@ public class DefaultController implements GolemController {
         return false;
     }
 
+<<<<<<< HEAD
 
 }
+=======
+    private void shootAll(Golem g) {
+        g.search().stream().filter(gi -> gi.getTeam() == otherTeam).forEach(gi -> g.shoot(gi));
+    }
+}
+>>>>>>> d61b6d3f882fe54b63d01de359a957542844290b
