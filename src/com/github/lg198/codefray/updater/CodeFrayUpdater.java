@@ -3,6 +3,7 @@ package com.github.lg198.codefray.updater;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
@@ -10,6 +11,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -51,14 +53,15 @@ public class CodeFrayUpdater {
         a.setTitle("CodeFray");
         a.setHeaderText("CodeFray Updater");
         a.setContentText("A CodeFray update is available! Version " + version + " will be installed! You will now specify where you want the new version to be saved.");
-        a.showAndWait();
+        a.showAndWait().filter(b -> b == ButtonType.CANCEL || b == ButtonType.CLOSE).ifPresent(b -> Platform.exit());
+
 
         DirectoryChooser chooser = new DirectoryChooser();
         chooser.setInitialDirectory(null);
         chooser.setTitle("Where do you want to save the updated jar?");
         File chosen = chooser.showDialog(null);
         if (chosen == null) {
-            return;
+            Platform.exit();
         }
         chosen = new File(chosen, "CodeFray.jar");
 
