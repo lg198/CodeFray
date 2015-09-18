@@ -8,6 +8,7 @@ import com.github.lg198.codefray.game.golem.CFGolemController;
 import com.github.lg198.codefray.game.map.CFMap;
 import com.github.lg198.codefray.load.ControllerLoader;
 import com.github.lg198.codefray.load.MapLoader;
+import com.github.lg198.codefray.updater.CodeFrayUpdater;
 import com.github.lg198.codefray.util.ErrorAlert;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -16,6 +17,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,13 +28,18 @@ public class CodeFrayApplication extends Application {
         launch(args);
     }
 
-    //TEST: C:\Users\Layne\IdeaProjects\CodeFray\out\artifacts\CodeFrayController_jar\CodeFrayController.jar
-
     private static Stage primaryStage;
 
     @Override
     public void start(Stage stage) {
         primaryStage = stage;
+
+        try {
+            CodeFrayUpdater.checkForUpdate();
+        } catch (IOException e) {
+            ErrorAlert.createAlert("Error", "Failed to update CodeFray",
+                                   "An attempt to update CodeFray failed due to an error!", e);
+        }
 
         new StartGui().launch();
     }

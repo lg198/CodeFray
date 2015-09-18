@@ -1,5 +1,6 @@
 package com.github.lg198.codefray.jfx;
 
+import com.github.lg198.codefray.updater.CodeFrayUpdater;
 import com.github.lg198.codefray.util.Stylizer;
 import com.sun.corba.se.spi.ior.Writeable;
 import com.sun.xml.internal.bind.v2.runtime.output.SAXOutput;
@@ -79,6 +80,9 @@ public class StartGui {
         title.setPadding(new Insets(0, 0, 5, 0));
         HBox titleBox = new HBox(title);
         titleBox.setAlignment(Pos.CENTER_LEFT);
+        Label version = new Label("Version " + CodeFrayUpdater.VERSION);
+        titleBox.setSpacing(6);
+        titleBox.getChildren().add(version);
         box.getChildren().add(titleBox);
 
         box.getChildren().add(localBox);

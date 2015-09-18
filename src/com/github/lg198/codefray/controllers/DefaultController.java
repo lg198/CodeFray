@@ -31,7 +31,7 @@ public class DefaultController implements GolemController {
 
         }
     }
-    
+
 
     private void onRoundRunner(Golem g) {
         shootAll(g);
