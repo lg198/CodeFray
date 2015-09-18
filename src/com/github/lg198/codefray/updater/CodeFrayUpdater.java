@@ -7,6 +7,7 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
+import javax.swing.*;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -76,7 +77,7 @@ public class CodeFrayUpdater {
 
         File temp = new File(chosen.getAbsolutePath() + ".temp");
         FileOutputStream fw = new FileOutputStream(temp);
-        byte[] buff = new byte[1024*64];
+        final byte[] buff = new byte[1024*64];
         for (int bread; (bread = con1.getInputStream().read(buff)) > -1;) {
             fw.write(buff, 0, bread);
         }
@@ -85,20 +86,20 @@ public class CodeFrayUpdater {
 
         ZipFile zfile = new ZipFile(temp);
 
-
         ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(chosen));
 
         zfile.stream().forEach(entry -> {
             try {
-                zos.putNextEntry(entry);
                 InputStream is = zfile.getInputStream(entry);
-                for (int bread; (bread = is.read(buff)) > -1; ) {
+                zos.putNextEntry(entry);
+                for (int bread; (bread = is.read(buff)) != -1; ) {
                     zos.write(buff, 0, bread);
                 }
                 is.close();
                 zos.closeEntry();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
+                System.out.println("fail");
             }
         });
 
@@ -108,7 +109,6 @@ public class CodeFrayUpdater {
         zos.close();
 
         temp.delete();
-        temp.deleteOnExit();
 
         Alert b = new Alert(AlertType.INFORMATION);
         b.setTitle("Update");

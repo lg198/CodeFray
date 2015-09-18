@@ -28,7 +28,7 @@ public class DefaultController implements GolemController {
 
         if (g.getType() == GolemType.RUNNER) {
             onRoundRunner(g);
-
+            System.out.println("Round runner " + g.getId());
         }
     }
 
