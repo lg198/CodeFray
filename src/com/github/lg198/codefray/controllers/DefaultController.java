@@ -1,14 +1,11 @@
 package com.github.lg198.codefray.controllers;
 
 import com.github.lg198.codefray.api.game.Team;
-import com.github.lg198.codefray.api.golem.*;
+import com.github.lg198.codefray.api.golem.ControllerDef;
+import com.github.lg198.codefray.api.golem.Golem;
+import com.github.lg198.codefray.api.golem.GolemController;
+import com.github.lg198.codefray.api.golem.GolemType;
 import com.github.lg198.codefray.api.math.Direction;
-import com.github.lg198.codefray.api.math.Point;
-import com.github.lg198.codefray.api.math.Vector;
-
-import java.util.List;
-
-import java.util.List;
 
 @ControllerDef(
         id = "com.github.lg198.Default",
@@ -17,22 +14,6 @@ import java.util.List;
         devId = "dfc61082ebcc29a8eee96284e2a26e42")
 public class DefaultController implements GolemController {
 
-<<<<<<< HEAD
-
-    @Override
-    public void onRound(Golem g) {
-        if (g.getTeam() == Team.RED) {
-            List<GolemInfo> search = g.search();
-            if (search.isEmpty()) {
-                attemptMove(g, g.getFlagDirection(Team.BLUE));
-            } else {
-                search.stream().filter(gi -> gi.getTeam() == Team.BLUE).limit(g.getShotsLeft()).forEach(gi -> {
-                    while (g.getMovesLeft() > 0 && Vector.between(g.getLocation(), gi.getLocation()).getMagnitudeSquared() > 1)
-                        g.move(Direction.between(g.getLocation(), gi.getLocation()));
-                    g.shoot(gi);
-                });
-            }
-=======
     public boolean initialized = false;
 
     public Team thisTeam, otherTeam;
@@ -47,13 +28,10 @@ public class DefaultController implements GolemController {
 
         if (g.getType() == GolemType.RUNNER) {
             onRoundRunner(g);
->>>>>>> d61b6d3f882fe54b63d01de359a957542844290b
+
         }
     }
-
-<<<<<<< HEAD
-=======
-    }
+    
 
     private void onRoundRunner(Golem g) {
         shootAll(g);
@@ -70,7 +48,6 @@ public class DefaultController implements GolemController {
         } while (g.getMovesLeft() > 0 && result);
     }
 
->>>>>>> d61b6d3f882fe54b63d01de359a957542844290b
     private boolean attemptMove(Golem g, Direction direct) {
         Direction next = direct;
         do {
@@ -84,12 +61,8 @@ public class DefaultController implements GolemController {
         return false;
     }
 
-<<<<<<< HEAD
 
-}
-=======
     private void shootAll(Golem g) {
         g.search().stream().filter(gi -> gi.getTeam() == otherTeam).forEach(gi -> g.shoot(gi));
     }
 }
->>>>>>> d61b6d3f882fe54b63d01de359a957542844290b
