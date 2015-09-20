@@ -23,8 +23,15 @@ import java.util.Map;
 
 public class CodeFrayApplication extends Application {
 
+    public static boolean ignoreUpdates = false;
+
     public static void main(String[] args) {
         PackagedControllers.init();
+        if (args.length > 0) {
+            if (args[0].equals("-i")) {
+                ignoreUpdates = true;
+            }
+        }
         launch(args);
     }
 
@@ -34,11 +41,15 @@ public class CodeFrayApplication extends Application {
     public void start(Stage stage) {
         primaryStage = stage;
 
-        try {
-            CodeFrayUpdater.checkForUpdate();
-        } catch (IOException e) {
-            ErrorAlert.createAlert("Error", "Failed to update CodeFray",
-                                   "An attempt to update CodeFray failed due to an error!", e);
+        if (!ignoreUpdates) {
+            try {
+                CodeFrayUpdater.checkForUpdate();
+            } catch (Exception e) {
+                ErrorAlert.createAlert("Error", "Failed to update CodeFray",
+                                       "An attempt to update CodeFray failed due to an error!", e);
+            }
+        } else {
+            CodeFrayUpdater.VERSION = "Your Mom";
         }
 
         new StartGui().launch();
