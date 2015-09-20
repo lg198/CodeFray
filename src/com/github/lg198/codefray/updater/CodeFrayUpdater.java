@@ -5,16 +5,13 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 
-import javax.swing.*;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.Optional;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class CodeFrayUpdater {
@@ -75,40 +72,44 @@ public class CodeFrayUpdater {
         con1.setRequestMethod("GET");
         System.out.println(con1.getResponseCode());
 
+
         File temp = new File(chosen.getAbsolutePath() + ".temp");
-        FileOutputStream fw = new FileOutputStream(temp);
-        final byte[] buff = new byte[1024*64];
-        for (int bread; (bread = con1.getInputStream().read(buff)) > -1;) {
-            fw.write(buff, 0, bread);
+        try (FileOutputStream fw = new FileOutputStream(temp)) {
+            final byte[] buff = new byte[1024 * 32];
+            for (int bread; (bread = con1.getInputStream().read(buff)) > -1; ) {
+                fw.write(buff, 0, bread);
+            }
+            fw.close();
+            con1.getInputStream().close();
         }
-        fw.close();
-        con1.getInputStream().close();
 
-        ZipFile zfile = new ZipFile(temp);
+        try (
+                ZipInputStream zis = new ZipInputStream(new FileInputStream(temp));
+                ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(chosen));
+        ) {
+            byte[] buff = new byte[1024*32];
 
-        ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(chosen));
-
-        zfile.stream().forEach(entry -> {
-            try {
-                InputStream is = zfile.getInputStream(entry);
-                zos.putNextEntry(entry);
-                for (int bread; (bread = is.read(buff)) != -1; ) {
+            boolean hasVersion = false;
+            for (ZipEntry ze; (ze = zis.getNextEntry()) != null; ) {
+                zos.putNextEntry(ze);
+                if (ze.getName().equals("version")) {
+                    hasVersion = true;
+                }
+                for (int bread; (bread = zis.read(buff)) > 0; ) {
                     zos.write(buff, 0, bread);
                 }
-                is.close();
                 zos.closeEntry();
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("fail");
             }
-        });
+            zis.close();
 
-        zos.putNextEntry(new ZipEntry("version"));
-        zos.write(version.getBytes(Charset.forName("UTF-8")));
-        zos.closeEntry();
-        zos.close();
+            if (!hasVersion) {
+                zos.putNextEntry(new ZipEntry("version"));
+                zos.write(version.getBytes(Charset.forName("UTF-8")));
+                zos.closeEntry();
+            }
 
-        temp.delete();
+            temp.delete();
+        }
 
         Alert b = new Alert(AlertType.INFORMATION);
         b.setTitle("Update");
