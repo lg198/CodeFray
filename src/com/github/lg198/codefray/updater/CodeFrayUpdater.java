@@ -62,6 +62,21 @@ public class CodeFrayUpdater {
             Platform.exit();
         }
         chosen = new File(chosen, "CodeFray.jar");
+        File temp = new File(chosen.getAbsolutePath() + ".temp");
+
+        if (chosen.exists()) {
+            try {
+                chosen.delete();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Alert error = new Alert(AlertType.ERROR);
+                error.setTitle("Error");
+                error.setHeaderText("Could not save update!");
+                error.setContentText("An instance of the CodeFray Game was detected and couldn't be deleted!");
+                error.showAndWait();
+                Platform.exit();
+            }
+        }
 
         System.out.println(chosen.getAbsolutePath());
 
@@ -73,10 +88,9 @@ public class CodeFrayUpdater {
         System.out.println(con1.getResponseCode());
 
 
-        File temp = new File(chosen.getAbsolutePath() + ".temp");
         try (FileOutputStream fw = new FileOutputStream(temp)) {
             final byte[] buff = new byte[1024 * 32];
-            for (int bread; (bread = con1.getInputStream().read(buff)) > -1; ) {
+            for (int bread; (bread = con1.getInputStream().read(buff)) > 0; ) {
                 fw.write(buff, 0, bread);
             }
             fw.close();
@@ -91,7 +105,7 @@ public class CodeFrayUpdater {
 
             boolean hasVersion = false;
             for (ZipEntry ze; (ze = zis.getNextEntry()) != null; ) {
-                zos.putNextEntry(ze);
+                zos.putNextEntry(new ZipEntry(ze.getName()));
                 if (ze.getName().equals("version")) {
                     hasVersion = true;
                 }
@@ -109,6 +123,9 @@ public class CodeFrayUpdater {
             }
 
             temp.delete();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw e;
         }
 
         Alert b = new Alert(AlertType.INFORMATION);
