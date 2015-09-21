@@ -142,12 +142,13 @@ public class CFMap {
                 after.getY() < 0 || after.getY() >= height) {
             return false;
         }
+        if (containsGolem(after)) return false;
         if (getTile(after) == null) return true;
         if (!(getTile(after) instanceof GolemHabitat)) return false;
         if (!((GolemHabitat)getTile(after)).canGolemEnter(g)) {
             return false;
         }
-        if (containsGolem(after)) return false;
+
 
         return true;
     }
