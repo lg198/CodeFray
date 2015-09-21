@@ -395,6 +395,11 @@ public class CFGame implements Game, GameBoardProvider {
         return match.getTeam();
     }
 
+    @Override
+    public TileType getTypeAt(Point p) {
+        return map.getTile(p).getTileType();
+    }
+
     public void fillPacket(PacketGameInfo info) {
         info.blueControllerName = getController(Team.BLUE).name;
         info.redControllerName = getController(Team.RED).name;
