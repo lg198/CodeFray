@@ -42,9 +42,13 @@ public class DefaultController implements GolemController {
             } while (g.getMovesLeft() > 0 && result);
             return;
         }
-        boolean result;
+        boolean result = false;
         do {
-            result = attemptMove(g, g.getFlagDirection(otherTeam));
+            if (!g.getGame().getFlagLocation(otherTeam).equals(g.getLocation())) {
+                result = attemptMove(g, g.getFlagDirection(otherTeam));
+            } else {
+                result = false;
+            }
         } while (g.getMovesLeft() > 0 && result);
     }
 

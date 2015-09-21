@@ -4,7 +4,6 @@ import com.github.lg198.codefray.api.game.Team;
 import com.github.lg198.codefray.api.math.Point;
 import com.github.lg198.codefray.game.CFGame;
 import com.github.lg198.codefray.game.GameBoardProvider;
-import com.github.lg198.codefray.game.golem.CFGolem;
 import com.github.lg198.codefray.game.map.FlagTile;
 import com.github.lg198.codefray.game.map.MapTile;
 import com.github.lg198.codefray.game.map.WallTile;
@@ -29,13 +28,34 @@ public class GameBoard {
     private double gridSize = 50, minGridSize = 10, maxGridSize = 60;
     private double transx = 0, transy = 0;
 
-    private Image redFlag, blueFlag, redWin, blueWin;
+    private Image redFlag, blueFlag, redWin, blueWin,
+            redRunner, blueRunner, redAssault, blueAssault, redDefense, blueDefense;
 
     public GameBoard(GameBoardProvider g) {
         game = g;
 
-        testsprite = new Image(
-                ResourceManager.getIcon("testsprite.png"),
+        redRunner = new Image(
+                ResourceManager.getIcon("redrunner.png"),
+                32, 32, true, true);
+
+        blueRunner = new Image(
+                ResourceManager.getIcon("bluerunner.png"),
+                32, 32, true, true);
+
+        redAssault = new Image(
+                ResourceManager.getIcon("redassault.png"),
+                32, 32, true, true);
+
+        blueAssault = new Image(
+                ResourceManager.getIcon("blueassault.png"),
+                32, 32, true, true);
+
+        redDefense = new Image(
+                ResourceManager.getIcon("reddefense.png"),
+                32, 32, true, true);
+
+        blueDefense = new Image(
+                ResourceManager.getIcon("bluedefense.png"),
                 32, 32, true, true);
 
         redFlag = new Image(
@@ -71,7 +91,6 @@ public class GameBoard {
         }
     }
 
-    private Image testsprite;
 
     public void setGame(CFGame g) {
         game = g;
@@ -105,8 +124,10 @@ public class GameBoard {
                 }
                 if (e.getEventType() == MouseEvent.MOUSE_PRESSED) {
                     dragged = false;
-                    dx = e.getX(); dy = e.getY();
-                    otx = transx; oty = transy;
+                    dx = e.getX();
+                    dy = e.getY();
+                    otx = transx;
+                    oty = transy;
                     return;
                 }
                 if (e.getEventType() == MouseEvent.MOUSE_CLICKED) {
@@ -170,14 +191,15 @@ public class GameBoard {
     }
 
     private Point clickToCell(double x, double y) {
-        y -= transy; x -= transx;
+        y -= transy;
+        x -= transx;
         int ycount = 0, xcount = 0;
-        while (y >= gridSize/10) {
-            y -= (gridSize/10d) + gridSize;
+        while (y >= gridSize / 10) {
+            y -= (gridSize / 10d) + gridSize;
             ycount++;
         }
-        while ( x >= gridSize/10) {
-            x  -= (gridSize/10d) + gridSize;
+        while (x >= gridSize / 10) {
+            x -= (gridSize / 10d) + gridSize;
             xcount++;
         }
         return new Point(xcount - 1, ycount - 1);
@@ -189,7 +211,7 @@ public class GameBoard {
 
     private void translateToCell(Point p, boolean padding) {
         gc().save();
-        double pad = gridSize/10;
+        double pad = gridSize / 10;
         double ipad = padding ? pad : 0;
         gc().translate(ipad + p.getX() * (gridSize + pad), ipad + p.getY() * (gridSize + pad));
     }
@@ -202,8 +224,8 @@ public class GameBoard {
         gc().translate(transx, transy);
 
         double pad = gridSize / 10;
-        double width = game.getMapWidth()*(pad+gridSize) + pad;
-        double height = game.getMapHeight()*(pad+gridSize) + pad;
+        double width = game.getMapWidth() * (pad + gridSize) + pad;
+        double height = game.getMapHeight() * (pad + gridSize) + pad;
 
         gc().setFill(Color.WHITESMOKE);
         gc().fillRect(0, 0, width, height);
@@ -219,10 +241,10 @@ public class GameBoard {
 
         gc().setFill(Color.BLACK);
         for (int x = 0; x <= game.getMapWidth(); x++) {
-            gc().fillRect(x * (pad+gridSize), 0, pad, height);
+            gc().fillRect(x * (pad + gridSize), 0, pad, height);
         }
         for (int y = 0; y <= game.getMapHeight(); y++) {
-            gc().fillRect(0, y * (pad+gridSize), width, pad);
+            gc().fillRect(0, y * (pad + gridSize), width, pad);
         }
         gc().restore();
 
@@ -238,12 +260,39 @@ public class GameBoard {
             gc().fillRect(0, 0, gridSize, gridSize);
         }
         if (game.golemIdAt(p) > -1) {
-            gc().drawImage(testsprite, 0, 0, gridSize, gridSize);
+            int gid = game.golemIdAt(p);
+            Image gi = null;
+            if (game.golemTeam(gid) == Team.RED) {
+                switch (game.golemType(gid)) {
+                    case 0:
+                        gi = redRunner;
+                        break;
+                    case 1:
+                        gi = redDefense;
+                        break;
+                    case 2:
+                        gi = redAssault;
+                        break;
+                }
+            } else {
+                switch (game.golemType(gid)) {
+                    case 0:
+                        gi = blueRunner;
+                        break;
+                    case 1:
+                        gi = blueDefense;
+                        break;
+                    case 2:
+                        gi = blueAssault;
+                        break;
+                }
+            }
+            gc().drawImage(gi, 0, 0, gridSize, gridSize);
         } else if (mt instanceof WallTile) {
             gc().setFill(Color.DARKGRAY);
             gc().fillRect(0, 0, gridSize, gridSize);
         } else if (mt instanceof FlagTile) {
-            if (((FlagTile)mt).getTeam() == Team.RED) {
+            if (((FlagTile) mt).getTeam() == Team.RED) {
                 gc().drawImage(redFlag, 0, 0, gridSize, gridSize);
             } else {
                 gc().drawImage(blueFlag, 0, 0, gridSize, gridSize);
@@ -256,18 +305,19 @@ public class GameBoard {
     }
 
     private Point highlighted;
+
     private void highlightCell(Point p) {
         highlighted = p;
         translateToCell(p, false);
         gc().translate(transx, transy);
 
-        double pad = gridSize/10;
+        double pad = gridSize / 10;
 
         gc().setFill(Color.GOLD);
-        gc().fillRect(0, 0, pad*2 + gridSize, pad); //Top
-        gc().fillRect(pad + gridSize, 0, pad, pad*2 + gridSize); //Right
-        gc().fillRect(0, pad + gridSize, pad*2 + gridSize, pad); //Bottom
-        gc().fillRect(0, 0, pad, pad*2 + gridSize); //Left
+        gc().fillRect(0, 0, pad * 2 + gridSize, pad); //Top
+        gc().fillRect(pad + gridSize, 0, pad, pad * 2 + gridSize); //Right
+        gc().fillRect(0, pad + gridSize, pad * 2 + gridSize, pad); //Bottom
+        gc().fillRect(0, 0, pad, pad * 2 + gridSize); //Left
 
         gc().restore();
     }

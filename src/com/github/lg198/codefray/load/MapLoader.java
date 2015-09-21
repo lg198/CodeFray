@@ -56,7 +56,7 @@ public class MapLoader {
 
             return new CFMap(tiles, mapName, mapAuthor);
         } catch (IOException e) {
-            throw new LoadException("Could not load map!");
+            throw new LoadException("Could not load map!", e);
         }
     }
 }

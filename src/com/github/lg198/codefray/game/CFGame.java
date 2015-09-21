@@ -174,6 +174,12 @@ public class CFGame implements Game, GameBoardProvider {
         s.reason = reason;
         s.timeInSeconds = time / 1000;
 
+        if (reason instanceof GameEndReason.Infraction) {
+            GameEndReason.Infraction i = (GameEndReason.Infraction) reason;
+            System.out.println(i.guilty);
+            System.out.println(i.type);
+        }
+
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -209,6 +215,7 @@ public class CFGame implements Game, GameBoardProvider {
             try {
                 controllerMap.get(g.getTeam()).onRound(new CFGolemWrapper(round, g));
             } catch (Exception e) {
+                new Exception("Infraction exception", e).printStackTrace();
                 GameEndReason.Infraction inf = new GameEndReason.Infraction(g.getTeam(), GameEndReason.Infraction.Type.EXCEPTION);
                 stop(inf);
                 return;

@@ -111,19 +111,21 @@ public class CFGolem implements Golem {
 
     @Override
     public Direction getFlagDirection(Team t) {
-        int xc = 0, yc = 0;
         Point p = game.getFlagLocation(t);
         return Direction.between(getLocation(), p);
     }
 
     @Override
     public boolean canMove(Direction d) {
+        if (d == null) {
+            return false;
+        }
         return game.getMap().isGolemMoveValid(this, d);
     }
 
     @Override
     public void move(Direction d) {
-        if (movesLeft <= 0) {
+        if (movesLeft <= 0 || d == null) {
             return;
         }
         if (game.getMap().isGolemMoveValid(this, d)) {
