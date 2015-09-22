@@ -17,6 +17,7 @@ public class ViewGame implements GameBoardProvider {
 
     private int[][][] tiles;
     private int[][][] golems;
+    private int[][] golemList;
     private String mapName, mapAuthor;
     private String redName, blueName, redControllerName, blueControllerName;
 
@@ -27,6 +28,7 @@ public class ViewGame implements GameBoardProvider {
 
     public ViewGame(ViewProfile vp) {
         profile = vp;
+        gui = new ViewGui(this);
     }
 
     public void recGameInfo(PacketGameInfo info) {
@@ -50,6 +52,7 @@ public class ViewGame implements GameBoardProvider {
         for (int i = 0; i < data.golems.length; i++) {
             int[] golem = data.golems[i];
             golems[golem[0]][golem[1]] = new int[]{golem[2], golem[3]};
+            golemList[i] = golem;
         }
         updateGui();
     }
@@ -114,18 +117,34 @@ public class ViewGame implements GameBoardProvider {
         return tiles[0].length;
     }
 
+
     @Override
-    public MapTile getMapTileAt(Point p) {
-        return null;
+    public int getMapTileAt(Point p) {
+        return tiles[p.getX()][p.getY()][2]; //type
+    }
+
+    @Override
+    public Team getMapTileTeam(Point p) {
+        return Team.values()[tiles[p.getX()][p.getY()][3]];
     }
 
     @Override
     public int golemType(int id) {
-        return 0;
+        for (int[] golem : golemList) {
+            if (golem[4] == id) {
+                return golem[2];
+            }
+        }
+        return -1;
     }
 
     @Override
     public Team golemTeam(int id) {
-        return Team.BLUE;
+        for (int[] golem : golemList) {
+            if (golem[4] == id) {
+                return Team.values()[golem[3]];
+            }
+        }
+        return null;
     }
 }

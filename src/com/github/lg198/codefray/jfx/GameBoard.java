@@ -254,8 +254,8 @@ public class GameBoard {
     }
 
     private void renderCell(Point p) {
-        MapTile mt = game.getMapTileAt(p);
-        if (mt == null) {
+        int mt = game.getMapTileAt(p);
+        if (mt == 0) {
             gc().setFill(Color.WHITESMOKE);
             gc().fillRect(0, 0, gridSize, gridSize);
         }
@@ -288,19 +288,18 @@ public class GameBoard {
                 }
             }
             gc().drawImage(gi, 0, 0, gridSize, gridSize);
-        } else if (mt instanceof WallTile) {
+        } else if (mt == 1) {
             gc().setFill(Color.DARKGRAY);
             gc().fillRect(0, 0, gridSize, gridSize);
-        } else if (mt instanceof FlagTile) {
-            if (((FlagTile) mt).getTeam() == Team.RED) {
+        } else if (mt == 2) {
+            if (game.getMapTileTeam(p) == Team.RED) {
                 gc().drawImage(redFlag, 0, 0, gridSize, gridSize);
             } else {
                 gc().drawImage(blueFlag, 0, 0, gridSize, gridSize);
 
             }
-        } else if (mt instanceof WinTile) {
-            WinTile wt = (WinTile) mt;
-            gc().drawImage(wt.getTeam() == Team.RED ? redWin : blueWin, 0, 0, gridSize, gridSize);
+        } else if (mt == 3) {
+            gc().drawImage(game.getMapTileTeam(p) == Team.RED ? redWin : blueWin, 0, 0, gridSize, gridSize);
         }
     }
 

@@ -19,7 +19,9 @@ public interface GameBoardProvider {
 
     int getMapHeight();
 
-    MapTile getMapTileAt(Point p);
+    int getMapTileAt(Point p);
+
+    Team getMapTileTeam(Point p);
 
     int golemType(int id);
 

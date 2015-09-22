@@ -236,7 +236,6 @@ public class CFGame implements Game, GameBoardProvider {
             if (g.getHealth() <= 0) {
                 gi.remove();
                 map.removeGolem(g);
-                map.setTile(g.getLocation(), null);
                 if (broadcasted) {
                     PacketGolemDie pgd = new PacketGolemDie();
                     pgd.id = g.getId();
@@ -379,8 +378,23 @@ public class CFGame implements Game, GameBoardProvider {
     }
 
     @Override
-    public MapTile getMapTileAt(Point p) {
-        return map.getTile(p);
+    public int getMapTileAt(Point p) {
+        return map.getTile(p).getTileType().ordinal();
+    }
+
+    @Override
+    public Team getMapTileTeam(Point p) {
+        MapTile mt = map.getTile(p);
+        if (mt == null) {
+            return null;
+        }
+        if (mt instanceof FlagTile) {
+            return ((FlagTile) mt).getTeam();
+        }
+        if (mt instanceof WinTile) {
+            return ((WinTile) mt).getTeam();
+        }
+        return null;
     }
 
     @Override
