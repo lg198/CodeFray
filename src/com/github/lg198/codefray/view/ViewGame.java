@@ -5,15 +5,12 @@ import com.github.lg198.codefray.api.math.Point;
 import com.github.lg198.codefray.game.GameBoardProvider;
 import com.github.lg198.codefray.game.GameEndReason;
 import com.github.lg198.codefray.game.map.MapTile;
-import com.github.lg198.codefray.net.protocol.packet.PacketGameEnd;
-import com.github.lg198.codefray.net.protocol.packet.PacketGameInfo;
-import com.github.lg198.codefray.net.protocol.packet.PacketGamePause;
-import com.github.lg198.codefray.net.protocol.packet.PacketMapData;
+import com.github.lg198.codefray.net.protocol.packet.*;
 import com.github.lg198.codefray.view.jfx.ViewGui;
 
 public class ViewGame implements GameBoardProvider {
 
-    private ViewProfile profile;
+    public ViewProfile profile;
 
     private int[][][] tiles;
     private int[][][] golems;
@@ -29,6 +26,7 @@ public class ViewGame implements GameBoardProvider {
     public ViewGame(ViewProfile vp) {
         profile = vp;
         gui = new ViewGui(this);
+        vp.game = this;
     }
 
     public void recGameInfo(PacketGameInfo info) {
@@ -74,6 +72,38 @@ public class ViewGame implements GameBoardProvider {
     public void recGamePause(PacketGamePause pause) {
         paused = pause.paused;
     }
+
+    public void recGolemMove(PacketGolemMove move) {
+        int[] g = new int[0];
+        for (int[] golem : golemList) {
+            if (golem[4] == move.id) {
+                golem[0] = move.x;
+                golem[1] = move.y;
+                g = golem;
+            }
+        }
+
+        golems[g[0]][g[1]] = null;
+        golems[move.x][move.y] = g;
+    }
+
+    public void recGolemDie(PacketGolemDie die) {
+
+    }
+
+    public void recMapUpdate(PacketMapUpdate update) {
+
+    }
+
+    public void recRoundUpdate(PacketRoundUpdate update) {
+
+    }
+
+    public void recTileUpdate(PacketTileUpdate update) {
+
+    }
+
+    
 
     private void start() {
 

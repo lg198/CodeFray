@@ -1,8 +1,6 @@
 package com.github.lg198.codefray.net;
 
-import com.github.lg198.codefray.net.protocol.packet.Packet;
-import com.github.lg198.codefray.net.protocol.packet.PacketGameInfo;
-import com.github.lg198.codefray.net.protocol.packet.PacketHelloServer;
+import com.github.lg198.codefray.net.protocol.packet.*;
 import com.github.lg198.codefray.view.ViewProfile;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
@@ -28,7 +26,14 @@ public class CFClientHandler extends IoHandlerAdapter {
         Packet p = (Packet) message;
 
         if (p instanceof PacketGameInfo) {
-
+            profile.game.recGameInfo((PacketGameInfo) p);
+        } else if (p instanceof PacketMapData) {
+            profile.game.recMapData((PacketMapData) p);
+        } else if (p instanceof PacketGamePause) {
+            profile.game.recGamePause((PacketGamePause) p);
+        } else if (p instanceof PacketGameInfo) {
+            profile.game.recGameEnd((PacketGameEnd) p);
+            session.close(false);
         }
     }
 
