@@ -62,7 +62,8 @@ public class StartGui {
                 stage.close();
                 CodeFrayApplication.startLocalGame();
             } else if (e.getSource() == eyeBox) {
-                System.out.println("eye");
+                stage.close();
+                CodeFrayApplication.startViewGame();
             } else {
                 stage.close();
                 CodeFrayApplication.startBroadcastedGame();

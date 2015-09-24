@@ -6,22 +6,30 @@ import com.github.lg198.codefray.game.GameBoardProvider;
 import com.github.lg198.codefray.game.GameEndReason;
 import com.github.lg198.codefray.game.map.MapTile;
 import com.github.lg198.codefray.net.protocol.packet.*;
+import com.github.lg198.codefray.util.SingleCollector;
 import com.github.lg198.codefray.view.jfx.ViewGui;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ViewGame implements GameBoardProvider {
 
     public ViewProfile profile;
 
-    private int[][][] tiles;
-    private int[][][] golems;
-    private int[][] golemList;
+    private ViewTile[][] tiles;
+    private ViewGolem[][] golems;
+    private List<ViewGolem> golemList = new ArrayList<>();
     private String mapName, mapAuthor;
     private String redName, blueName, redControllerName, blueControllerName;
 
     private boolean running = false;
     private boolean paused = false;
+    public volatile boolean initialized = false;
 
-    private ViewGui gui;
+    public ViewGui gui;
 
     public ViewGame(ViewProfile vp) {
         profile = vp;
@@ -45,12 +53,29 @@ public class ViewGame implements GameBoardProvider {
     public void recMapData(PacketMapData data) {
         mapName = data.mapName;
         mapAuthor = data.mapAuthor;
-        tiles = data.tiles;
-        golems = new int[tiles.length][tiles[0].length][];
+        tiles = new ViewTile[data.mapWidth][data.mapHeight];
+        for (int x = 0; x < data.mapWidth; x++) {
+            for (int y = 0; y < data.mapHeight; y++) {
+                if (data.tiles[x][y].length > 0) {
+                    int[] td = data.tiles[x][y];
+                    tiles[x][y] = td.length == 1 ? new ViewTile(td[0]) : new ViewTile(td[0], td[1]);
+                }
+            }
+        }
+        golems = new ViewGolem[data.mapWidth][data.mapHeight];
         for (int i = 0; i < data.golems.length; i++) {
             int[] golem = data.golems[i];
-            golems[golem[0]][golem[1]] = new int[]{golem[2], golem[3]};
-            golemList[i] = golem;
+            golems[golem[0]][golem[1]] = new ViewGolem(golem[0], golem[1], golem[4], golem[2], golem[3]);
+            golemList.add(golems[golem[0]][golem[1]]);
+        }
+
+        if (!initialized) {
+            initialized = true;
+            Scene scene = new Scene(gui.build());
+            Stage stage = new Stage();
+            stage.setScene(scene);
+            stage.setTitle("CodeFray Game Viewer");
+            stage.show();
         }
         updateGui();
     }
@@ -71,42 +96,42 @@ public class ViewGame implements GameBoardProvider {
 
     public void recGamePause(PacketGamePause pause) {
         paused = pause.paused;
+        if (paused) {
+            gui.summary.statusPause();
+        } else {
+            gui.summary.statusStart();
+        }
     }
 
     public void recGolemMove(PacketGolemMove move) {
-        int[] g = new int[0];
-        for (int[] golem : golemList) {
-            if (golem[4] == move.id) {
-                golem[0] = move.x;
-                golem[1] = move.y;
-                g = golem;
+        ViewGolem g = null;
+        for (ViewGolem gol : golemList) {
+            if (gol.id == move.id) {
+                g = gol;
+                break;
             }
         }
 
-        golems[g[0]][g[1]] = null;
+        golems[g.x][g.y] = null;
         golems[move.x][move.y] = g;
+        g.x = move.x;
+        g.y = move.y;
     }
 
     public void recGolemDie(PacketGolemDie die) {
-
-    }
-
-    public void recMapUpdate(PacketMapUpdate update) {
-
+        golemList = golemList.stream().filter(g -> g.id != die.id).collect(Collectors.toList());
     }
 
     public void recRoundUpdate(PacketRoundUpdate update) {
-
+        gui.summary.round.setText(update.round + "");
     }
 
-    public void recTileUpdate(PacketTileUpdate update) {
-
+    public void recGolemUpdate(PacketGolemUpdate update) {
+        //do nothing for now
     }
-
-    
 
     private void start() {
-
+        gui.summary.statusStart();
     }
 
     private void stop(GameEndReason reason) {
@@ -114,7 +139,7 @@ public class ViewGame implements GameBoardProvider {
     }
 
     private void updateGui() {
-
+        gui.board.update();
     }
 
     @Override
@@ -124,7 +149,7 @@ public class ViewGame implements GameBoardProvider {
 
     @Override
     public int golemIdAt(Point p) {
-        return golems[p.getX()][p.getY()][4];
+        return golems[p.getX()][p.getY()].id;
     }
 
     @Override
@@ -150,31 +175,21 @@ public class ViewGame implements GameBoardProvider {
 
     @Override
     public int getMapTileAt(Point p) {
-        return tiles[p.getX()][p.getY()][2]; //type
+        return tiles[p.getX()][p.getY()].type;
     }
 
     @Override
     public Team getMapTileTeam(Point p) {
-        return Team.values()[tiles[p.getX()][p.getY()][3]];
+        return Team.values()[tiles[p.getX()][p.getY()].team];
     }
 
     @Override
     public int golemType(int id) {
-        for (int[] golem : golemList) {
-            if (golem[4] == id) {
-                return golem[2];
-            }
-        }
-        return -1;
+        return golemList.stream().filter(g -> g.id == id).collect(new SingleCollector<>()).type;
     }
 
     @Override
     public Team golemTeam(int id) {
-        for (int[] golem : golemList) {
-            if (golem[4] == id) {
-                return Team.values()[golem[3]];
-            }
-        }
-        return null;
+        return Team.values()[golemList.stream().filter(g -> g.id == id).collect(new SingleCollector<>()).team];
     }
 }

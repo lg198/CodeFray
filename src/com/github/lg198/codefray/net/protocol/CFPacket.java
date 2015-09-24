@@ -20,29 +20,25 @@ public class CFPacket {
         ENCODER = CHARSET.newEncoder();
     }
 
-    public static final Map<Integer, Class<? extends Packet>> PACKETS = new HashMap<Integer, Class<? extends Packet>>() {
-        {
-            put(0, PacketHelloServer.class);
-            put(1, PacketGameInfo.class);
-            put(2, PacketMapData.class);
-            put(3, PacketRoundUpdate.class);
-            put(4, PacketTileUpdate.class);
-            put(5, PacketGolemUpdate.class);
-            put(6, PacketGolemMove.class);
-            put(7, PacketGolemDie.class);
-            put(8, PacketChatToServer.class);
-            put(9, PacketChatToClient.class);
-
-            put(10, PacketGameEnd.class);
-            put(11, PacketGamePause.class);
-
-        }
-    };
+    public static final Map<Integer, Class<? extends Packet>> PACKETS = new HashMap<Integer, Class<? extends Packet>>();
     public static final Map<Class<? extends Packet>, Integer> REV_PACKETS = new HashMap<>();
     static {
-        for (Integer key : PACKETS.keySet()) {
-            REV_PACKETS.put(PACKETS.get(key), key);
-        }
+        registerPacket(PacketHelloServer.class);
+        registerPacket(PacketGameInfo.class);
+        registerPacket(PacketMapData.class);
+        registerPacket(PacketRoundUpdate.class);
+        registerPacket(PacketGolemUpdate.class);
+        registerPacket(PacketGolemMove.class);
+        registerPacket(PacketGolemDie.class);
+        registerPacket(PacketChatToServer.class);
+        registerPacket(PacketChatToClient.class);
+        registerPacket(PacketGameEnd.class);
+        registerPacket(PacketGamePause.class);
+    }
+    private static int PID_COUNTER = 0;
+    private static void registerPacket(Class<? extends Packet> p) {
+        PACKETS.put(PID_COUNTER++, p);
+        REV_PACKETS.put(p, PID_COUNTER-1);
     }
 
 

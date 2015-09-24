@@ -11,6 +11,7 @@ import java.io.IOException;
 public class CFProtocolDecoder extends CumulativeProtocolDecoder {
 
     protected boolean doDecode(IoSession session, IoBuffer in, ProtocolDecoderOutput out) throws Exception {
+        System.out.println("CONTAINS ATTRIBUTE: " + session.containsAttribute("decoder.header"));
         if (!session.containsAttribute("decoder.header")) {
             if (in.remaining() < Integer.BYTES*2) {
                 return false;
@@ -39,6 +40,7 @@ public class CFProtocolDecoder extends CumulativeProtocolDecoder {
             p.read(incomplete.content);
             out.write(p);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new Exception("Error while attempting to instantiate class.", e);
         }
 

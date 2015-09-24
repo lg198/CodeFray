@@ -66,4 +66,10 @@ public class CodeFrayServer {
         public long id;
     }
 
+    public static void shutdown() {
+        if (acceptor != null) {
+            acceptor.dispose();
+        }
+    }
+
 }

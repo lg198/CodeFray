@@ -9,6 +9,7 @@ import com.github.lg198.codefray.view.ViewGame;
 import com.github.lg198.codefray.view.ViewProfile;
 import javafx.application.Platform;
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -25,6 +26,7 @@ public class UsernameGui {
         GridPane grid = new GridPane();
         grid.setHgap(6);
         grid.setVgap(15);
+        grid.setPadding(new Insets(15));
 
         Label nameLabel = new Label("Username:");
         Stylizer.set(nameLabel, "-fx-font-size", "14px");
@@ -44,16 +46,18 @@ public class UsernameGui {
             if (name.getText().trim().isEmpty()) {
                 return;
             }
-            grid.getScene().getWindow().hide();
             ViewGame game = new ViewGame(new ViewProfile(name.getText()));
             try {
                 CodeFrayClient.start("bc.codefraygame.com", game.profile);
+                //grid.getScene().getWindow().hide();
             } catch (IOException e) {
-                ErrorAlert.createAlert("Error", "Connection Error", "CodeFray failed to connect to the broadcast server. It may be down, or there might not be a game streaming right now.", e);
+                e.printStackTrace();
+                ErrorAlert.createAlert("Error", "Connection Error", "CodeFray failed to connect to the broadcast server. It may be down, or there might not be a game streaming right now.", e).showAndWait();
             }
         });
 
         GridPane.setColumnSpan(enter, 2);
+        GridPane.setHalignment(enter, HPos.RIGHT);
         grid.add(enter, 0, 1);
 
         return grid;

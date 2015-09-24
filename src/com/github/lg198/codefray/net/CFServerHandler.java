@@ -1,12 +1,12 @@
 package com.github.lg198.codefray.net;
 
-import com.github.lg198.codefray.api.game.Team;
 import com.github.lg198.codefray.game.CFGame;
 import com.github.lg198.codefray.net.protocol.packet.Packet;
 import com.github.lg198.codefray.net.protocol.packet.PacketGameInfo;
 import com.github.lg198.codefray.net.protocol.packet.PacketHelloServer;
 import com.github.lg198.codefray.net.protocol.packet.PacketMapData;
 import com.github.lg198.codefray.util.Stylizer;
+import javafx.application.Platform;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IoSession;
 
@@ -26,11 +26,12 @@ public class CFServerHandler extends IoHandlerAdapter {
         CodeFrayServer.ServerClient client = new CodeFrayServer.ServerClient();
         client.id = session.getId();
         CodeFrayServer.clients.add(client);
-        game.getGui().bpanel.setViewers(CodeFrayServer.clients.size());
+        Platform.runLater(() -> game.getGui().bpanel.setViewers(CodeFrayServer.clients.size()));
     }
 
     @Override
     public void messageReceived(IoSession session, Object message) {
+        System.out.println("[SERVER] RECEIVED MESSAGE " + message.getClass().getSimpleName());
         Packet p = (Packet) message;
 
         if (p instanceof PacketHelloServer) {
@@ -43,6 +44,19 @@ public class CFServerHandler extends IoHandlerAdapter {
             }
 
             sc.username = ((PacketHelloServer) p).name;
+            final String uname = sc.username;
+
+            Platform.runLater(() -> game.getGui().bpanel.addLine(
+                    Stylizer.text(
+                            uname,
+                            "-fx-font-weight", "bold",
+                            "-fx-fill", "red"
+                    ),
+                    Stylizer.text(
+                            " has joined the broadcast.",
+                            "-fx-fill", "red"
+                    )
+            ));
 
             PacketGameInfo info = new PacketGameInfo();
             game.fillPacket(info);
@@ -59,23 +73,26 @@ public class CFServerHandler extends IoHandlerAdapter {
         System.out.println("[SERVER] Client disconnected!");
         ListIterator<CodeFrayServer.ServerClient> ci = CodeFrayServer.clients.listIterator();
         while (ci.hasNext()) {
-            CodeFrayServer.ServerClient client = ci.next();
+            final CodeFrayServer.ServerClient client = ci.next();
             if (client.id == session.getId()) {
-                game.getGui().bpanel.addLine(
-                        Stylizer.text(
-                                client.username,
-                                "-fx-font-weight", "bold",
-                                "-fx-fill", "red"
-                        ),
-                        Stylizer.text(
-                                " has disconnected.",
-                                "-fx-fill", "red"
-                        )
-                );
+                Platform.runLater(() -> {
+                    game.getGui().bpanel.addLine(
+                            Stylizer.text(
+                                    client.username,
+                                    "-fx-font-weight", "bold",
+                                    "-fx-fill", "red"
+                            ),
+                            Stylizer.text(
+                                    " has disconnected.",
+                                    "-fx-fill", "red"
+                            )
+                    );
+                    game.getGui().bpanel.setViewers(CodeFrayServer.clients.size());
+                });
                 ci.remove();
                 break;
             }
         }
-        game.getGui().bpanel.setViewers(CodeFrayServer.clients.size());
+
     }
 }

@@ -243,16 +243,14 @@ public class CFGame implements Game, GameBoardProvider {
                 }
                 if (g.isHoldingFlag()) {
                     map.setTile(g.getLocation(), new FlagTile(g.getHeldFlag()));
-                    if (broadcasted) {
-                        PacketMapUpdate pmu = new PacketMapUpdate();
-                        pmu.x = g.getLocation().getX();
-                        pmu.y = g.getLocation().getY();
-                        pmu.type = TileType.FLAG.ordinal();
-                        pmu.data = new int[]{g.getHeldFlag().ordinal()};
-                        CodeFrayServer.safeBroadcast(pmu);
-                    }
                 }
             }
+        }
+
+        if (broadcasted) {
+            PacketMapData data = new PacketMapData();
+            map.writePacket(data);
+            CodeFrayServer.safeBroadcast(data);
         }
 
         for (Team t : teams) {
@@ -379,6 +377,9 @@ public class CFGame implements Game, GameBoardProvider {
 
     @Override
     public int getMapTileAt(Point p) {
+        if (map.getTile(p) == null) {
+            return -1;
+        }
         return map.getTile(p).getTileType().ordinal();
     }
 

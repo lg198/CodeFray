@@ -8,8 +8,12 @@ import com.github.lg198.codefray.game.golem.CFGolemController;
 import com.github.lg198.codefray.game.map.CFMap;
 import com.github.lg198.codefray.load.ControllerLoader;
 import com.github.lg198.codefray.load.MapLoader;
+import com.github.lg198.codefray.net.CodeFrayClient;
+import com.github.lg198.codefray.net.CodeFrayServer;
 import com.github.lg198.codefray.updater.CodeFrayUpdater;
 import com.github.lg198.codefray.util.ErrorAlert;
+import com.github.lg198.codefray.view.jfx.UsernameGui;
+import com.github.lg198.codefray.view.jfx.ViewGui;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Parent;
@@ -26,13 +30,22 @@ public class CodeFrayApplication extends Application {
     public static boolean ignoreUpdates = false;
 
     public static void main(String[] args) {
-        PackagedControllers.init();
-        if (args.length > 0) {
-            if (args[0].equals("-i")) {
-                ignoreUpdates = true;
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            CodeFrayClient.shutdown();
+            CodeFrayServer.shutdown();
+        }));
+        try {
+            PackagedControllers.init();
+            if (args.length > 0) {
+                if (args[0].equals("-i")) {
+                    ignoreUpdates = true;
+                }
             }
+            launch(args);
+        } catch (Exception e) {
+            ErrorAlert.createAlert("Error", "CodeFray has crashed", "CodeFray has crashed due to a " + e.getClass().getSimpleName(), e).showAndWait();
+            System.exit(1);
         }
-        launch(args);
     }
 
     private static Stage primaryStage;
@@ -108,4 +121,14 @@ public class CodeFrayApplication extends Application {
         primaryStage.setTitle("Load Game");
         primaryStage.show();
     }
+
+    public static void startViewGame() {
+        UsernameGui gui = new UsernameGui();
+        Scene scene = new Scene(gui.build());
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("Select Username");
+        primaryStage.show();
+    }
+
+
 }
