@@ -48,7 +48,7 @@ public class UsernameGui {
             }
             ViewGame game = new ViewGame(new ViewProfile(name.getText()));
             try {
-                CodeFrayClient.start("bc.codefraygame.com", game.profile);
+                CodeFrayClient.start("10.20.60.155", game.profile);
                 //grid.getScene().getWindow().hide();
             } catch (IOException e) {
                 e.printStackTrace();

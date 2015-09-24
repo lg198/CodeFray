@@ -39,13 +39,11 @@ public class CFProtocolDecoder extends CumulativeProtocolDecoder {
             Packet p = c.newInstance();
             p.read(incomplete.content);
             out.write(p);
+            session.removeAttribute("decoder.header");
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
             throw new Exception("Error while attempting to instantiate class.", e);
         }
-
-
-        session.removeAttribute("decoder.header");
-        return true;
     }
 }

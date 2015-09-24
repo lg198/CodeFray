@@ -6,6 +6,9 @@ import com.github.lg198.codefray.net.protocol.CFProtocolFactory;
 import com.github.lg198.codefray.net.protocol.packet.Packet;
 import com.github.lg198.codefray.net.protocol.packet.PacketGameEnd;
 import com.github.lg198.codefray.util.Stylizer;
+import org.apache.mina.core.filterchain.IoFilterAdapter;
+import org.apache.mina.core.session.IoSession;
+import org.apache.mina.core.write.WriteRequest;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.serialization.ObjectSerializationCodecFactory;
 import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
@@ -31,6 +34,26 @@ public class CodeFrayServer {
         game = g;
 
         acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new CFProtocolFactory()));
+        acceptor.getFilterChain().addFirst("logger", new IoFilterAdapter() {
+
+
+            @Override
+            public void exceptionCaught(NextFilter nextFilter, IoSession ioSession, Throwable throwable) throws Exception {
+                new IOException("Server error", throwable).printStackTrace();
+            }
+
+
+            @Override
+            public void messageReceived(NextFilter nextFilter, IoSession ioSession, Object o) throws Exception {
+                System.out.println("server received message");
+            }
+
+            @Override
+            public void messageSent(NextFilter nextFilter, IoSession ioSession, WriteRequest writeRequest) throws Exception {
+                System.out.println("Sending message from server to client");
+            }
+
+        });
 
         acceptor.setHandler(new CFServerHandler(game));
 

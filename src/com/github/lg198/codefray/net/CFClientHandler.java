@@ -19,10 +19,6 @@ public class CFClientHandler extends IoHandlerAdapter {
     @Override
     public void sessionOpened(IoSession session) {
         System.out.println("[CLIENT] Connected to server!");
-        PacketHelloServer packet = new PacketHelloServer();
-        packet.name = profile.username;
-        CodeFrayClient.session = session;
-        CodeFrayClient.sendPacket(packet);
     }
 
     @Override

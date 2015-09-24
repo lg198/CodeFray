@@ -11,7 +11,7 @@ public class CFProtocolEncoder extends ProtocolEncoderAdapter {
     public void encode(IoSession session, Object message, ProtocolEncoderOutput output) throws Exception {
         CFPacket packet = (CFPacket) message;
 
-        IoBuffer buffer = IoBuffer.allocate(Integer.BYTES*2 + packet.size, false);
+        IoBuffer buffer = IoBuffer.allocate(Integer.BYTES*2 + packet.size);
         buffer.putInt(packet.id);
         buffer.putInt(packet.size);
         buffer.put(packet.content);
