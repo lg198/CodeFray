@@ -18,6 +18,7 @@ import org.apache.mina.transport.socket.nio.NioSocketConnector;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 
 public class CodeFrayClient {
 
@@ -28,30 +29,6 @@ public class CodeFrayClient {
         connector = new NioSocketConnector();
 
         connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new CFProtocolFactory()));
-        connector.getFilterChain().addFirst("logger", new IoFilterAdapter() {
-
-
-            @Override
-            public void exceptionCaught(NextFilter nextFilter, IoSession ioSession, Throwable throwable) throws Exception {
-                new IOException("Client error", throwable).printStackTrace();
-            }
-
-
-            @Override
-            public void messageReceived(NextFilter nextFilter, IoSession ioSession, Object o) throws Exception {
-                System.out.println("client received message");
-            }
-
-            @Override
-            public void messageSent(NextFilter nextFilter, IoSession ioSession, WriteRequest writeRequest) throws Exception {
-                System.out.println("Sending message from client to server");
-            }
-
-            @Override
-            public void filterWrite(NextFilter nextFilter, IoSession session, WriteRequest writeRequest) throws Exception {
-                System.out.println("Client Filter write " + writeRequest.getMessage().getClass().getSimpleName());
-            }
-        });
 
         connector.setHandler(new CFClientHandler(profile));
         connector.getSessionConfig().setSendBufferSize(2048);
@@ -72,24 +49,7 @@ public class CodeFrayClient {
 
     public static void sendPacket(Packet p) {
         System.out.println("[CLIENT] SENDING PACKET " + p.getClass().getSimpleName());
-        if (!CFPacket.REV_PACKETS.containsKey(p.getClass())) {
-            throw new IllegalArgumentException("Class " + p.getClass().getSimpleName() + " is not a registered packet!");
-        }
-
-        int id = CFPacket.REV_PACKETS.get(p.getClass());
-        CFPacket packet = new CFPacket(id);
-        try {
-            packet.content = p.write();
-            packet.size = packet.content.length;
-            WriteFuture future = session.write(packet);
-            future.awaitUninterruptibly(5000);
-            System.out.println("Is written? " + future.isWritten() + ", is done? " + future.isDone());
-            if (future.getException() != null) {
-                throw new IOException(future.getException());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        session.write(p);
     }
 
     public static void shutdown() {

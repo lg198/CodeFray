@@ -7,27 +7,29 @@ import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class CFProtocolDecoder extends CumulativeProtocolDecoder {
 
     protected boolean doDecode(IoSession session, IoBuffer in, ProtocolDecoderOutput out) throws Exception {
-        System.out.println("CONTAINS ATTRIBUTE: " + session.containsAttribute("decoder.header"));
-        if (!session.containsAttribute("decoder.header")) {
-            if (in.remaining() < Integer.BYTES*2) {
-                return false;
-            }
-            int id = in.getInt(), size = in.getInt();
-            session.setAttribute("decoder.header", new CFPacket(id, size));
+        System.out.println("[DECODER] BEING CALLED!");
+
+        int loc = in.position();
+        int id = in.getInt();
+        int size = in.getInt();
+        if (in.remaining() < size) {
+            in.position(loc);
             return false;
         }
 
-        CFPacket incomplete = (CFPacket) session.getAttribute("decoder.header");
-        if (in.remaining() < incomplete.size) {
-            return false;
-        }
+        System.out.println("[DECODER] ENOUGH TO READ ID OF " + id);
+
+        CFPacket incomplete = new CFPacket(id, size);
 
         incomplete.content = new byte[incomplete.size];
         in.get(incomplete.content);
+
+        System.out.println("[DECODER] Received content: " + Arrays.toString(incomplete.content));
 
         if (!CFPacket.PACKETS.containsKey(incomplete.id)) {
             throw new IOException("Non-existing packet read!");

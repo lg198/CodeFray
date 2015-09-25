@@ -45,8 +45,6 @@ public class ViewGame implements GameBoardProvider {
         running = info.gameStarted;
         if (running) {
             start();
-        } else {
-            updateGui();
         }
     }
 

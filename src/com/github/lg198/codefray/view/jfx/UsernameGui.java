@@ -49,7 +49,7 @@ public class UsernameGui {
             ViewGame game = new ViewGame(new ViewProfile(name.getText()));
             try {
                 CodeFrayClient.start("10.20.60.155", game.profile);
-                //grid.getScene().getWindow().hide();
+                //CodeFrayApplication.startViewGui(game);
             } catch (IOException e) {
                 e.printStackTrace();
                 ErrorAlert.createAlert("Error", "Connection Error", "CodeFray failed to connect to the broadcast server. It may be down, or there might not be a game streaming right now.", e).showAndWait();

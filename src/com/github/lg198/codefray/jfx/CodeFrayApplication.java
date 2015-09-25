@@ -12,6 +12,7 @@ import com.github.lg198.codefray.net.CodeFrayClient;
 import com.github.lg198.codefray.net.CodeFrayServer;
 import com.github.lg198.codefray.updater.CodeFrayUpdater;
 import com.github.lg198.codefray.util.ErrorAlert;
+import com.github.lg198.codefray.view.ViewGame;
 import com.github.lg198.codefray.view.jfx.UsernameGui;
 import com.github.lg198.codefray.view.jfx.ViewGui;
 import javafx.application.Application;
@@ -20,6 +21,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import javax.swing.text.View;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -127,6 +129,14 @@ public class CodeFrayApplication extends Application {
         Scene scene = new Scene(gui.build());
         primaryStage.setScene(scene);
         primaryStage.setTitle("Select Username");
+        primaryStage.show();
+    }
+
+    public static void startViewGui(ViewGame g) {
+        ViewGui gui = new ViewGui(g);
+        Scene scene = new Scene(gui.build());
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("CodeFray Game Viewer");
         primaryStage.show();
     }
 

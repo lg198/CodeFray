@@ -26,7 +26,6 @@ public class CFServerHandler extends IoHandlerAdapter {
         CodeFrayServer.ServerClient client = new CodeFrayServer.ServerClient();
         client.id = session.getId();
         CodeFrayServer.clients.add(client);
-        Platform.runLater(() -> game.getGui().bpanel.setViewers(CodeFrayServer.clients.size()));
     }
 
     @Override

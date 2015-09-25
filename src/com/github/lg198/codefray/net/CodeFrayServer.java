@@ -34,26 +34,6 @@ public class CodeFrayServer {
         game = g;
 
         acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new CFProtocolFactory()));
-        acceptor.getFilterChain().addFirst("logger", new IoFilterAdapter() {
-
-
-            @Override
-            public void exceptionCaught(NextFilter nextFilter, IoSession ioSession, Throwable throwable) throws Exception {
-                new IOException("Server error", throwable).printStackTrace();
-            }
-
-
-            @Override
-            public void messageReceived(NextFilter nextFilter, IoSession ioSession, Object o) throws Exception {
-                System.out.println("server received message");
-            }
-
-            @Override
-            public void messageSent(NextFilter nextFilter, IoSession ioSession, WriteRequest writeRequest) throws Exception {
-                System.out.println("Sending message from server to client");
-            }
-
-        });
 
         acceptor.setHandler(new CFServerHandler(game));
 
@@ -73,6 +53,7 @@ public class CodeFrayServer {
     public static void broadcast(Packet p) throws IOException {
         acceptor.broadcast(p);
     }
+
 
     public static void safeBroadcast(Packet p) {
         try {
