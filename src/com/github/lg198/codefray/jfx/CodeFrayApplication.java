@@ -109,7 +109,7 @@ public class CodeFrayApplication extends Application {
         startGame(primaryStage, red, blue, new File(mapString), broadcasted);
     }
 
-    public static void switchToResult(GameStatistics stats, File logFile) {
+    public static void switchToResult(GameStatistics stats) {
         GameResultGui gui = new GameResultGui(stats);
         Scene sc = new Scene(gui.build());
         primaryStage.setScene(sc);
