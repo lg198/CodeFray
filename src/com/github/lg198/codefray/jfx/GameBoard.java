@@ -92,7 +92,7 @@ public class GameBoard {
     }
 
 
-    public void setGame(CFGame g) {
+    public void setGame(GameBoardProvider g) {
         game = g;
 
         redraw();

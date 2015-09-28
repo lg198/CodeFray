@@ -75,8 +75,6 @@ public class UsernameGui {
         GridPane.setHalignment(enter, HPos.RIGHT);
         grid.add(enter, 0, 2);
 
-        name.requestFocus();
-
         return grid;
     }
 }

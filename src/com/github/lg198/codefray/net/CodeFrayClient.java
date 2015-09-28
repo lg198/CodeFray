@@ -34,7 +34,7 @@ public class CodeFrayClient {
         connector.getSessionConfig().setSendBufferSize(2048);
 
         ConnectFuture future = connector.connect(new InetSocketAddress(address, CodeFrayServer.PORT));
-        future.awaitUninterruptibly();
+        future.awaitUninterruptibly(10000);
         Throwable c = future.getException();
         if (c != null) {
             c.printStackTrace();

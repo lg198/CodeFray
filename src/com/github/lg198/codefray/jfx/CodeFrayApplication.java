@@ -147,13 +147,13 @@ public class CodeFrayApplication extends Application {
     }
 
     public static void startViewGui(ViewGame g) {
+        primaryStage.hide();
         ViewGui gui = new ViewGui(g);
-        Stage stage = new Stage();
         Scene scene = new Scene(gui.build());
-        stage.setScene(scene);
-        stage.setTitle("CodeFray Game Viewer");
-        stage.show();
-        primaryStage.close();
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("CodeFray Game Viewer");
+        primaryStage.setMaximized(true);
+        primaryStage.show();
     }
 
 
