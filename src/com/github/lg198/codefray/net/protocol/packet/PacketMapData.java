@@ -22,8 +22,6 @@ public class PacketMapData extends Packet {
         mapWidth = buff.getInt();
         mapHeight = buff.getInt();
 
-        System.out.printf("[PACKET MAP DATA] map Size: (%d, %d)\n", mapWidth, mapHeight);
-
         tiles = new int[mapWidth][mapHeight][2];
         for (int i = 0; i < mapHeight*mapWidth; i++) {
             int x = buff.getInt(), y = buff.getInt();
@@ -57,8 +55,6 @@ public class PacketMapData extends Packet {
 
         buff.putInt(mapWidth);
         buff.putInt(mapHeight);
-
-        System.out.printf("[PACKET MAP DATA] Writing map size: (%d, %d)\n", mapWidth, mapHeight);
 
         for (int x = 0; x < tiles.length; x++) {
             for (int y = 0; y < tiles[x].length; y++) {

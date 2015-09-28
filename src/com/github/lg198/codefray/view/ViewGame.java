@@ -99,7 +99,7 @@ public class ViewGame implements GameBoardProvider {
             updateThread(() -> gui.summary.statusStart());
         }
     }
-    
+
 
     public void recGolemDie(PacketGolemDie die) {
         golemList = golemList.stream().filter(g -> g.id != die.id).collect(Collectors.toList());
@@ -183,10 +183,13 @@ public class ViewGame implements GameBoardProvider {
             @Override
             protected Void call() throws Exception {
                 updateMessage("Working");
+                System.out.println("[THREAD] CALLING TASK");
                 return null;
             }
         };
-        task.messageProperty().addListener((obs, om, nm) -> run.run());
+        task.messageProperty().addListener((obs, om, nm) -> {
+            run.run();
+        });
         Thread thread = new Thread(task);
         thread.setDaemon(true);
         thread.start();

@@ -1,6 +1,7 @@
 package com.github.lg198.codefray.net;
 
 import com.github.lg198.codefray.net.protocol.packet.*;
+import com.github.lg198.codefray.util.Stylizer;
 import com.github.lg198.codefray.view.ViewProfile;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -18,6 +19,11 @@ public class CFClientHandler extends IoHandlerAdapter {
     @Override
     public void sessionOpened(IoSession session) {
         System.out.println("[CLIENT] Connected to server!");
+        profile.game.updateThread(() -> Stylizer.text(
+                "You have connected to the broadcast.",
+                "-fx-fill", "green",
+                "-fx-font-weight", "bold"
+        ));
     }
 
     @Override

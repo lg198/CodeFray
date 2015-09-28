@@ -40,8 +40,6 @@ public class CodeFrayApplication extends Application {
                 CodeFrayServer.shutdown();
                 Platform.exit();
             }
-
-            Thread.getAllStackTraces().keySet().forEach(thread -> System.out.println("FOUND THREAD: " + thread.getName()));
         }));
         try {
             PackagedControllers.init();
@@ -112,12 +110,13 @@ public class CodeFrayApplication extends Application {
     }
 
     public static void switchToResult(GameStatistics stats, File logFile) {
-        primaryStage.hide();
         GameResultGui gui = new GameResultGui(stats);
         Scene sc = new Scene(gui.build());
         primaryStage.setScene(sc);
         primaryStage.setMaximized(false);
         primaryStage.setTitle("Result");
+        primaryStage.sizeToScene();
+        primaryStage.centerOnScreen();
         primaryStage.show();
     }
 
@@ -149,10 +148,12 @@ public class CodeFrayApplication extends Application {
 
     public static void startViewGui(ViewGame g) {
         ViewGui gui = new ViewGui(g);
+        Stage stage = new Stage();
         Scene scene = new Scene(gui.build());
-        primaryStage.setScene(scene);
-        primaryStage.setTitle("CodeFray Game Viewer");
-        primaryStage.show();
+        stage.setScene(scene);
+        stage.setTitle("CodeFray Game Viewer");
+        stage.show();
+        primaryStage.close();
     }
 
 

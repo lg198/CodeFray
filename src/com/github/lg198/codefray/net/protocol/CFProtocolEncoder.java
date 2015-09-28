@@ -21,7 +21,7 @@ public class CFProtocolEncoder extends ProtocolEncoderAdapter {
         int id = CFPacket.REV_PACKETS.get(up.getClass());
         CFPacket packet = new CFPacket(id);
         packet.content = up.write();
-        System.out.println(Arrays.toString(packet.content));
+        //System.out.println(Arrays.toString(packet.content));
         packet.size = packet.content.length;
 
         //System.out.printf("Encoding packet with id of %d and size of %d.\n", packet.id, packet.size);

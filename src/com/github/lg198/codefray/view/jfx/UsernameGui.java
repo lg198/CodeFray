@@ -57,18 +57,25 @@ public class UsernameGui {
             if (name.getText().trim().isEmpty() || address.getText().trim().isEmpty()) {
                 return;
             }
-            ViewGame game = new ViewGame(new ViewProfile(name.getText()));
-            try {
-                CodeFrayClient.start(address.getText().trim(), game.profile);
-            } catch (IOException e) {
-                e.printStackTrace();
-                ErrorAlert.createAlert("Error", "Connection Error", "CodeFray failed to connect to the broadcast server. It may be down, or there might not be a game streaming right now.", e).showAndWait();
-            }
+            Thread t = new Thread(() -> {
+                ViewGame game = new ViewGame(new ViewProfile(name.getText()));
+                try {
+                    CodeFrayClient.start(address.getText().trim(), game.profile);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    ErrorAlert.createAlert("Error", "Connection Error", "CodeFray failed to connect to the broadcast server. It may be down, or there might not be a game streaming right now.", e).showAndWait();
+                }
+            });
+            t.setName("CF-Viewer-Launch");
+            t.setDaemon(true);
+            t.start();
         });
 
         GridPane.setColumnSpan(enter, 2);
         GridPane.setHalignment(enter, HPos.RIGHT);
         grid.add(enter, 0, 2);
+
+        name.requestFocus();
 
         return grid;
     }

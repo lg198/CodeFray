@@ -46,7 +46,7 @@ public class ViewSummaryPanel {
     public void statusStart() {
         status.setTextFill(Color.GREEN);
         status.setText("Running");
-        System.err.println("[ALERT] SETTINGS STATUS");
+        System.err.println("[ALERT] SETTINGS STATUS " + status.getText());
     }
 
     public void statusPause() {
