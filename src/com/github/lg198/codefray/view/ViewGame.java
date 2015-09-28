@@ -45,7 +45,7 @@ public class ViewGame implements GameBoardProvider {
         redControllerName = info.redControllerName;
         blueControllerName = info.blueControllerName;
         running = info.gameStarted;
-        if (running) {
+        if (running && initialized) {
             start();
         }
     }
@@ -73,6 +73,9 @@ public class ViewGame implements GameBoardProvider {
             initialized = true;
             gui = new ViewGui(this);
             Platform.runLater(() -> CodeFrayApplication.startViewGui(this));
+            if (running) {
+                start();
+            }
         }
         updateGui();
     }
