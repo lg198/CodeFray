@@ -37,7 +37,7 @@ public class CFGame implements Game, GameBoardProvider {
 
     private volatile boolean running = false;
     private volatile boolean paused = false;
-    private long round = 1;
+    private long round = 0;
     private int clockSpeed = 1333;
 
     private GameClock clock;
@@ -146,12 +146,20 @@ public class CFGame implements Game, GameBoardProvider {
     public void pause() {
         paused = true;
         clock.pause();
+        if (broadcasted) {
+            PacketGamePause pause = new PacketGamePause();
+            pause.paused = true;
+            CodeFrayServer.safeBroadcast(pause);
+        }
     }
 
     public void unpause() {
         paused = false;
         clock.unpause();
         gui.panel.removeGolemBox();
+        PacketGamePause pause = new PacketGamePause();
+        pause.paused = false;
+        CodeFrayServer.safeBroadcast(pause);
     }
 
     public GameStatistics stop(GameEndReason reason) {
@@ -204,6 +212,7 @@ public class CFGame implements Game, GameBoardProvider {
     }
 
     public void onRound() {
+        round++;
         if (broadcasted) {
             PacketRoundUpdate pru = new PacketRoundUpdate();
             pru.round = getRound();
@@ -260,7 +269,6 @@ public class CFGame implements Game, GameBoardProvider {
             }
         }
 
-        round++;
     }
 
     @Override

@@ -1,10 +1,8 @@
 package com.github.lg198.codefray.net;
 
 import com.github.lg198.codefray.game.CFGame;
-import com.github.lg198.codefray.net.protocol.packet.Packet;
-import com.github.lg198.codefray.net.protocol.packet.PacketGameInfo;
-import com.github.lg198.codefray.net.protocol.packet.PacketHelloServer;
-import com.github.lg198.codefray.net.protocol.packet.PacketMapData;
+import com.github.lg198.codefray.net.protocol.packet.*;
+import com.github.lg198.codefray.util.SingleCollector;
 import com.github.lg198.codefray.util.Stylizer;
 import javafx.application.Platform;
 import org.apache.mina.core.service.IoHandlerAdapter;
@@ -26,6 +24,7 @@ public class CFServerHandler extends IoHandlerAdapter {
         CodeFrayServer.ServerClient client = new CodeFrayServer.ServerClient();
         client.id = session.getId();
         CodeFrayServer.clients.add(client);
+        Platform.runLater(() -> game.getGui().bpanel.setViewers(CodeFrayServer.clients.size()));
     }
 
     @Override
@@ -61,9 +60,28 @@ public class CFServerHandler extends IoHandlerAdapter {
             game.fillPacket(info);
             session.write(info);
 
+            if (game.isPaused()) {
+                PacketGamePause pause = new PacketGamePause();
+                pause.paused = true;
+                session.write(pause);
+            }
+            if (game.isRunning()) {
+                PacketRoundUpdate update = new PacketRoundUpdate();
+                update.round = game.getRound();
+                session.write(update);
+            }
+
             PacketMapData data = new PacketMapData();
             game.getMap().writePacket(data);
             session.write(data);
+        } else if (p instanceof PacketChatToServer) {
+            PacketChatToServer chat = (PacketChatToServer) p;
+            CodeFrayServer.ServerClient sc = CodeFrayServer.clients.stream().filter(c -> c.id == session.getId()).limit(1).collect(new SingleCollector<>());
+            Platform.runLater(() -> game.getGui().bpanel.addChatMessage(sc.username, chat.message));
+            PacketChatToClient client = new PacketChatToClient();
+            client.message = chat.message;
+            client.name = sc.username;
+            CodeFrayServer.safeBroadcast(client);
         }
     }
 

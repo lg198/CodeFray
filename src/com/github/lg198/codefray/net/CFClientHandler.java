@@ -3,6 +3,7 @@ package com.github.lg198.codefray.net;
 import com.github.lg198.codefray.net.protocol.packet.*;
 import com.github.lg198.codefray.util.Stylizer;
 import com.github.lg198.codefray.view.ViewProfile;
+import javafx.application.Platform;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import org.apache.mina.core.service.IoHandlerAdapter;
@@ -30,7 +31,6 @@ public class CFClientHandler extends IoHandlerAdapter {
     public void messageReceived(IoSession session, Object message) {
         Packet p = (Packet) message;
 
-        System.out.println("[CLIENT] RECEIVED PACKET: " + p.getClass().getSimpleName());
         if (p instanceof PacketGameInfo) {
             profile.game.recGameInfo((PacketGameInfo) p);
         } else if (p instanceof PacketMapData) {
@@ -46,15 +46,18 @@ public class CFClientHandler extends IoHandlerAdapter {
             profile.game.recGolemDie((PacketGolemDie) p);
         } else if (p instanceof PacketRoundUpdate) {
             profile.game.recRoundUpdate((PacketRoundUpdate) p);
+        } else if (p instanceof PacketChatToClient) {
+            profile.game.recChat((PacketChatToClient) p);
         }
     }
 
     @Override
     public void sessionClosed(IoSession session) {
         System.out.println("[CLIENT] Disconnected!");
-        Text dtext = new Text("You have been disconnected.");
-        dtext.setFill(Color.RED);
-        profile.game.gui.broadcast.addLine(dtext);
+        Platform.runLater(() -> profile.game.gui.broadcast.addLine(Stylizer.text(
+                "You have been disconnected.",
+                "-fx-fill", "red"
+        )));
         session.getService().dispose();
     }
 }

@@ -6,8 +6,10 @@ import com.github.lg198.codefray.game.GameBoardProvider;
 import com.github.lg198.codefray.game.GameEndReason;
 import com.github.lg198.codefray.game.map.MapTile;
 import com.github.lg198.codefray.jfx.CodeFrayApplication;
+import com.github.lg198.codefray.net.CodeFrayClient;
 import com.github.lg198.codefray.net.protocol.packet.*;
 import com.github.lg198.codefray.util.SingleCollector;
+import com.github.lg198.codefray.util.Stylizer;
 import com.github.lg198.codefray.view.jfx.ViewGui;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -72,7 +74,7 @@ public class ViewGame implements GameBoardProvider {
         if (!initialized) {
             initialized = true;
             gui = new ViewGui(this);
-            Platform.runLater(() -> CodeFrayApplication.startViewGui(this));
+            Platform.runLater(() -> CodeFrayApplication.startViewGui(ViewGame.this));
             if (running) {
                 start();
             }
@@ -114,6 +116,13 @@ public class ViewGame implements GameBoardProvider {
 
     public void recGolemUpdate(PacketGolemUpdate update) {
         //do nothing for now
+    }
+
+    public void recChat(PacketChatToClient chat) {
+        if (chat.name.equals(profile.username)) {
+            return;
+        }
+        Platform.runLater(() -> addChatMessage(chat.name, chat.message));
     }
 
     private void start() {
@@ -182,19 +191,24 @@ public class ViewGame implements GameBoardProvider {
     }
 
     public void updateThread(Runnable run) {
-        Task<Void> task = new Task<Void>() {
-            @Override
-            protected Void call() throws Exception {
-                updateMessage("Working");
-                System.out.println("[THREAD] CALLING TASK");
-                return null;
-            }
-        };
-        task.messageProperty().addListener((obs, om, nm) -> {
-            run.run();
-        });
-        Thread thread = new Thread(task);
-        thread.setDaemon(true);
-        thread.start();
+        Platform.runLater(run);
+    }
+
+    public void sendChat(final String message) {
+        PacketChatToServer packet = new PacketChatToServer();
+        packet.message = message;
+        CodeFrayClient.sendPacket(packet);
+        updateThread(() -> addChatMessage(profile.username, message));
+    }
+
+    private void addChatMessage(String uname, String message) {
+        gui.broadcast.addLine(Stylizer.text(
+                uname + ": ",
+                "-fx-fill", profile.username.equals(uname) ? "blue" : "gray",
+                "-fx-font-weight", "bold"
+        ), Stylizer.text(
+                message,
+                "-fx-fill", profile.username.equals(uname) ? "blue" : "gray"
+        ));
     }
 }

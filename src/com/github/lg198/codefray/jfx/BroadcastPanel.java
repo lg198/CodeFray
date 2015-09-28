@@ -6,7 +6,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -33,7 +35,6 @@ public class BroadcastPanel {
 
         panel.getChildren().add(buildInfoBox());
         panel.getChildren().add(buildLogBox());
-
 
         return panel;
     }
@@ -68,6 +69,7 @@ public class BroadcastPanel {
         logFlow.setTextAlignment(TextAlignment.LEFT);
         flowScroll.setMaxWidth(350);
         log.getChildren().add(flowScroll);
+        VBox.setVgrow(log, Priority.ALWAYS);
 
         return log;
     }
@@ -94,6 +96,17 @@ public class BroadcastPanel {
         logFlow.layout();
         flowScroll.layout();
         flowScroll.setVvalue(1.0f);
+    }
+
+    public void addChatMessage(String uname, String message) {
+        addLine(Stylizer.text(
+                uname + ": ",
+                "-fx-fill", "black",
+                "-fx-font-weight", "bold"
+        ), Stylizer.text(
+                message,
+                "-fx-fill", "black"
+        ));
     }
 
 }

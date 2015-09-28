@@ -9,7 +9,7 @@ import javafx.scene.layout.VBox;
 
 public class ViewGui {
 
-    public ViewBroadcastPanel broadcast = new ViewBroadcastPanel();
+    public ViewBroadcastPanel broadcast;
     public ViewSummaryPanel summary = new ViewSummaryPanel();
     public GameBoard board;
     public ViewGame game;
@@ -17,6 +17,7 @@ public class ViewGui {
     public ViewGui(ViewGame game) {
         this.game = game;
         board = new GameBoard(game);
+        broadcast = new ViewBroadcastPanel(this);
     }
 
     public AnchorPane build() {
