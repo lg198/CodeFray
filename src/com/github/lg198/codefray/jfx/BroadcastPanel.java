@@ -1,6 +1,7 @@
 package com.github.lg198.codefray.jfx;
 
 import com.github.lg198.codefray.game.CFGame;
+import com.github.lg198.codefray.util.Stylizer;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -85,6 +86,8 @@ public class BroadcastPanel {
             }
 
             if (i + 1 == ts.length) ts[i].setText(ts[i].getText() + "\n");
+
+            Stylizer.set(ts[i], "-fx-font-family", "Consolas, inherited");
 
             logFlow.getChildren().add(ts[i]);
         }
