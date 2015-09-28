@@ -72,6 +72,7 @@ public class CodeFrayServer {
 
     public static void shutdown() {
         if (acceptor != null) {
+            acceptor.unbind();
             acceptor.dispose();
         }
     }

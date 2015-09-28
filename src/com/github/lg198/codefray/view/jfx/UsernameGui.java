@@ -20,7 +20,7 @@ import java.io.IOException;
 
 public class UsernameGui {
 
-    public TextField name = new TextField();
+    public TextField name = new TextField(), address = new TextField();
 
     public GridPane build() {
         GridPane grid = new GridPane();
@@ -28,28 +28,38 @@ public class UsernameGui {
         grid.setVgap(15);
         grid.setPadding(new Insets(15));
 
+        Label addressLabel = new Label("Address:");
+        Stylizer.set(addressLabel, "-fx-font-size", "14px");
+        Stylizer.set(address, "-fx-font-size", "14px");
+        address.setText("bc.codefraygame.com");
+
+        GridPane.setHalignment(addressLabel, HPos.LEFT);
+        GridPane.setHalignment(address, HPos.LEFT);
+        GridPane.setHgrow(address, Priority.ALWAYS);
+
+        grid.add(addressLabel, 0, 0);
+        grid.add(address, 1, 0);
+
         Label nameLabel = new Label("Username:");
         Stylizer.set(nameLabel, "-fx-font-size", "14px");
         Stylizer.set(name, "-fx-font-size", "14px");
-        name.setPromptText("Ex: njonas");
 
         GridPane.setHalignment(nameLabel, HPos.LEFT);
         GridPane.setHalignment(name, HPos.LEFT);
         GridPane.setHgrow(name, Priority.ALWAYS);
 
-        grid.add(nameLabel, 0, 0);
-        grid.add(name, 1, 0);
+        grid.add(nameLabel, 0, 1);
+        grid.add(name, 1, 1);
 
         Button enter = new Button("Enter");
         Stylizer.set(enter, "-fx-font-size", "14px");
         enter.setOnAction(event -> {
-            if (name.getText().trim().isEmpty()) {
+            if (name.getText().trim().isEmpty() || address.getText().trim().isEmpty()) {
                 return;
             }
             ViewGame game = new ViewGame(new ViewProfile(name.getText()));
             try {
-                CodeFrayClient.start("10.20.60.155", game.profile);
-                //CodeFrayApplication.startViewGui(game);
+                CodeFrayClient.start(address.getText().trim(), game.profile);
             } catch (IOException e) {
                 e.printStackTrace();
                 ErrorAlert.createAlert("Error", "Connection Error", "CodeFray failed to connect to the broadcast server. It may be down, or there might not be a game streaming right now.", e).showAndWait();
@@ -58,7 +68,7 @@ public class UsernameGui {
 
         GridPane.setColumnSpan(enter, 2);
         GridPane.setHalignment(enter, HPos.RIGHT);
-        grid.add(enter, 0, 1);
+        grid.add(enter, 0, 2);
 
         return grid;
     }

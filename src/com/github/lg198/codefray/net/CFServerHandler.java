@@ -49,11 +49,11 @@ public class CFServerHandler extends IoHandlerAdapter {
                     Stylizer.text(
                             uname,
                             "-fx-font-weight", "bold",
-                            "-fx-fill", "red"
+                            "-fx-fill", "green"
                     ),
                     Stylizer.text(
                             " has joined the broadcast.",
-                            "-fx-fill", "red"
+                            "-fx-fill", "green"
                     )
             ));
 
@@ -65,6 +65,11 @@ public class CFServerHandler extends IoHandlerAdapter {
             game.getMap().writePacket(data);
             session.write(data);
         }
+    }
+
+    @Override
+    public void exceptionCaught(IoSession session, Throwable ex) {
+        ex.printStackTrace(System.err);
     }
 
     @Override

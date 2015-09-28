@@ -2,7 +2,9 @@ package com.github.lg198.codefray.jfx;
 
 import com.github.lg198.codefray.api.game.Team;
 import com.github.lg198.codefray.game.CFGame;
+import com.github.lg198.codefray.game.GameEndReason;
 import com.github.lg198.codefray.game.golem.CFGolem;
+import com.github.lg198.codefray.net.protocol.packet.PacketGameEnd;
 import com.github.lg198.codefray.util.Stylizer;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -170,7 +172,7 @@ public class OptionsPanel {
         stopButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent actionEvent) {
-                game.stop(null);
+                game.stop(new GameEndReason.Forced());
             }
         });
 

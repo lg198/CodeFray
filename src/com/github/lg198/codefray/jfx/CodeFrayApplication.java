@@ -30,11 +30,18 @@ import java.util.Map;
 public class CodeFrayApplication extends Application {
 
     public static boolean ignoreUpdates = false;
+    public static volatile boolean shutdown = false;
 
     public static void main(String[] args) {
+        Platform.setImplicitExit(true);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            CodeFrayClient.shutdown();
-            CodeFrayServer.shutdown();
+            if (!shutdown) {
+                CodeFrayClient.shutdown();
+                CodeFrayServer.shutdown();
+                Platform.exit();
+            }
+
+            Thread.getAllStackTraces().keySet().forEach(thread -> System.out.println("FOUND THREAD: " + thread.getName()));
         }));
         try {
             PackagedControllers.init();
@@ -68,6 +75,14 @@ public class CodeFrayApplication extends Application {
         }
 
         new StartGui().launch();
+    }
+
+    @Override
+    public void stop() {
+        shutdown = true;
+        System.out.println("STOPPING CODEFRAY...");
+        CodeFrayClient.shutdown();
+        CodeFrayServer.shutdown();
     }
 
     private static void startGame(Stage stage, CFGolemController red, CFGolemController blue, File mapFile, boolean broadcasted) {
@@ -128,7 +143,7 @@ public class CodeFrayApplication extends Application {
         UsernameGui gui = new UsernameGui();
         Scene scene = new Scene(gui.build());
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Select Username");
+        primaryStage.setTitle("View Game");
         primaryStage.show();
     }
 

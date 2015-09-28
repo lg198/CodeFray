@@ -164,7 +164,7 @@ public class CFMap {
                 if (g == null) {
                     continue;
                 }
-                golemEntries.add(new int[]{g.getType().ordinal(), g.getType().ordinal(), g.getId()});
+                golemEntries.add(new int[]{g.getLocation().getX(), g.getLocation().getY(), g.getType().ordinal(), g.getTeam().ordinal(), g.getId()});
             }
         }
         p.golems = golemEntries.toArray(new int[0][0]);

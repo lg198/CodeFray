@@ -13,7 +13,7 @@ public class PacketChatToServer extends Packet {
     public void read(byte[] content) throws IOException {
         IoBuffer buff = IoBuffer.wrap(content);
 
-        message = buff.getString(CFPacket.DECODER);
+        message = buff.getPrefixedString(CFPacket.DECODER);
     }
 
     @Override
@@ -21,7 +21,7 @@ public class PacketChatToServer extends Packet {
         IoBuffer buff = IoBuffer.allocate(message.length());
         buff.setAutoExpand(true);
 
-        buff.putString(message, CFPacket.ENCODER);
+        buff.putPrefixedString(message, CFPacket.ENCODER);
 
         buff.flip();
         return buff.array();

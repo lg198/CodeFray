@@ -28,7 +28,6 @@ public class CFPacket {
         registerPacket(PacketMapData.class);
         registerPacket(PacketRoundUpdate.class);
         registerPacket(PacketGolemUpdate.class);
-        registerPacket(PacketGolemMove.class);
         registerPacket(PacketGolemDie.class);
         registerPacket(PacketChatToServer.class);
         registerPacket(PacketChatToClient.class);

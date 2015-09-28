@@ -24,7 +24,7 @@ public class CFProtocolEncoder extends ProtocolEncoderAdapter {
         System.out.println(Arrays.toString(packet.content));
         packet.size = packet.content.length;
 
-        System.out.printf("Encoding packet with id of %d and size of %d.\n", packet.id, packet.size);
+        //System.out.printf("Encoding packet with id of %d and size of %d.\n", packet.id, packet.size);
 
         IoBuffer buffer = IoBuffer.allocate(Integer.BYTES * 2 + packet.size);
         buffer.putInt(packet.id);

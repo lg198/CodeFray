@@ -1,6 +1,5 @@
 package com.github.lg198.codefray.net;
 
-import com.github.lg198.codefray.jfx.CodeFrayApplication;
 import com.github.lg198.codefray.net.protocol.packet.*;
 import com.github.lg198.codefray.view.ViewProfile;
 import javafx.scene.paint.Color;
@@ -25,6 +24,7 @@ public class CFClientHandler extends IoHandlerAdapter {
     public void messageReceived(IoSession session, Object message) {
         Packet p = (Packet) message;
 
+        System.out.println("[CLIENT] RECEIVED PACKET: " + p.getClass().getSimpleName());
         if (p instanceof PacketGameInfo) {
             profile.game.recGameInfo((PacketGameInfo) p);
         } else if (p instanceof PacketMapData) {
@@ -36,8 +36,6 @@ public class CFClientHandler extends IoHandlerAdapter {
             session.close(false);
         } else if (p instanceof PacketGolemUpdate) {
             profile.game.recGolemUpdate((PacketGolemUpdate) p);
-        } else if (p instanceof PacketGolemMove) {
-            profile.game.recGolemMove((PacketGolemMove) p);
         } else if (p instanceof PacketGolemDie) {
             profile.game.recGolemDie((PacketGolemDie) p);
         } else if (p instanceof PacketRoundUpdate) {

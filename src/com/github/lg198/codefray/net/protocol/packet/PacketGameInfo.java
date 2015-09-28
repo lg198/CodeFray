@@ -15,22 +15,22 @@ public class PacketGameInfo extends Packet {
     @Override
     public void read(byte[] content) throws IOException {
         IoBuffer buff = IoBuffer.wrap(content);
-        redName = buff.getString(CFPacket.DECODER);
-        blueName = buff.getString(CFPacket.DECODER);
-        redControllerName = buff.getString(CFPacket.DECODER);
-        blueControllerName = buff.getString(CFPacket.DECODER);
+        redName = buff.getPrefixedString(CFPacket.DECODER);
+        blueName = buff.getPrefixedString(CFPacket.DECODER);
+        redControllerName = buff.getPrefixedString(CFPacket.DECODER);
+        blueControllerName = buff.getPrefixedString(CFPacket.DECODER);
         gameStarted = buff.get() == 1 ? true : false;
     }
 
     @Override
     public byte[] write() throws IOException {
-        IoBuffer buff = IoBuffer.allocate(redName.length() + blueName.length() + redControllerName.length() + blueControllerName.length());
+        IoBuffer buff = IoBuffer.allocate(redName.length() + blueName.length() + redControllerName.length() + blueControllerName.length() + 1);
         buff.setAutoExpand(true);
 
-        buff.putString(redName, CFPacket.ENCODER);
-        buff.putString(blueName, CFPacket.ENCODER);
-        buff.putString(redControllerName, CFPacket.ENCODER);
-        buff.putString(blueControllerName, CFPacket.ENCODER);
+        buff.putPrefixedString(redName, CFPacket.ENCODER);
+        buff.putPrefixedString(blueName, CFPacket.ENCODER);
+        buff.putPrefixedString(redControllerName, CFPacket.ENCODER);
+        buff.putPrefixedString(blueControllerName, CFPacket.ENCODER);
         buff.put(gameStarted ? (byte) 1 : (byte) 0);
 
         buff.flip();

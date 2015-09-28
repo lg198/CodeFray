@@ -5,9 +5,12 @@ import com.github.lg198.codefray.api.math.Point;
 import com.github.lg198.codefray.game.GameBoardProvider;
 import com.github.lg198.codefray.game.GameEndReason;
 import com.github.lg198.codefray.game.map.MapTile;
+import com.github.lg198.codefray.jfx.CodeFrayApplication;
 import com.github.lg198.codefray.net.protocol.packet.*;
 import com.github.lg198.codefray.util.SingleCollector;
 import com.github.lg198.codefray.view.jfx.ViewGui;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -33,7 +36,6 @@ public class ViewGame implements GameBoardProvider {
 
     public ViewGame(ViewProfile vp) {
         profile = vp;
-        gui = new ViewGui(this);
         vp.game = this;
     }
 
@@ -69,11 +71,8 @@ public class ViewGame implements GameBoardProvider {
 
         if (!initialized) {
             initialized = true;
-            Scene scene = new Scene(gui.build());
-            Stage stage = new Stage();
-            stage.setScene(scene);
-            stage.setTitle("CodeFray Game Viewer");
-            stage.show();
+            gui = new ViewGui(this);
+            Platform.runLater(() -> CodeFrayApplication.startViewGui(this));
         }
         updateGui();
     }
@@ -95,33 +94,19 @@ public class ViewGame implements GameBoardProvider {
     public void recGamePause(PacketGamePause pause) {
         paused = pause.paused;
         if (paused) {
-            gui.summary.statusPause();
+            updateThread(() -> gui.summary.statusPause());
         } else {
-            gui.summary.statusStart();
+            updateThread(() -> gui.summary.statusStart());
         }
     }
-
-    public void recGolemMove(PacketGolemMove move) {
-        ViewGolem g = null;
-        for (ViewGolem gol : golemList) {
-            if (gol.id == move.id) {
-                g = gol;
-                break;
-            }
-        }
-
-        golems[g.x][g.y] = null;
-        golems[move.x][move.y] = g;
-        g.x = move.x;
-        g.y = move.y;
-    }
+    
 
     public void recGolemDie(PacketGolemDie die) {
         golemList = golemList.stream().filter(g -> g.id != die.id).collect(Collectors.toList());
     }
 
     public void recRoundUpdate(PacketRoundUpdate update) {
-        gui.summary.round.setText(update.round + "");
+        updateThread(() -> gui.summary.round.setText(update.round + ""));
     }
 
     public void recGolemUpdate(PacketGolemUpdate update) {
@@ -129,7 +114,7 @@ public class ViewGame implements GameBoardProvider {
     }
 
     private void start() {
-        gui.summary.statusStart();
+        updateThread(() -> gui.summary.statusStart());
     }
 
     private void stop(GameEndReason reason) {
@@ -137,7 +122,7 @@ public class ViewGame implements GameBoardProvider {
     }
 
     private void updateGui() {
-        gui.board.update();
+        updateThread(() -> gui.board.update());
     }
 
     @Override
@@ -147,7 +132,8 @@ public class ViewGame implements GameBoardProvider {
 
     @Override
     public int golemIdAt(Point p) {
-        return golems[p.getX()][p.getY()].id;
+        ViewGolem g = golems[p.getX()][p.getY()];
+        return g != null ? g.id : -1;
     }
 
     @Override
@@ -173,7 +159,8 @@ public class ViewGame implements GameBoardProvider {
 
     @Override
     public int getMapTileAt(Point p) {
-        return tiles[p.getX()][p.getY()].type;
+        ViewTile t = tiles[p.getX()][p.getY()];
+        return t != null ? t.type : 0;
     }
 
     @Override
@@ -189,5 +176,19 @@ public class ViewGame implements GameBoardProvider {
     @Override
     public Team golemTeam(int id) {
         return Team.values()[golemList.stream().filter(g -> g.id == id).collect(new SingleCollector<>()).team];
+    }
+
+    public void updateThread(Runnable run) {
+        Task<Void> task = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                updateMessage("Working");
+                return null;
+            }
+        };
+        task.messageProperty().addListener((obs, om, nm) -> run.run());
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
     }
 }

@@ -16,11 +16,13 @@ public class PacketMapData extends Packet {
     public void read(byte[] content) throws IOException {
         IoBuffer buff = IoBuffer.wrap(content);
 
-        mapName = buff.getString(CFPacket.DECODER);
-        mapAuthor = buff.getString(CFPacket.DECODER);
+        mapName = buff.getPrefixedString(CFPacket.DECODER);
+        mapAuthor = buff.getPrefixedString(CFPacket.DECODER);
 
         mapWidth = buff.getInt();
         mapHeight = buff.getInt();
+
+        System.out.printf("[PACKET MAP DATA] map Size: (%d, %d)\n", mapWidth, mapHeight);
 
         tiles = new int[mapWidth][mapHeight][2];
         for (int i = 0; i < mapHeight*mapWidth; i++) {
@@ -33,7 +35,7 @@ public class PacketMapData extends Packet {
         }
 
         int gc = buff.getInt();
-        golems = new int[gc][4];
+        golems = new int[gc][5];
         for (int i = 0; i < gc; i++) {
             int x = buff.getInt(), y = buff.getInt();
             int type = buff.getInt(), team = buff.getInt(), id = buff.getInt();
@@ -50,11 +52,13 @@ public class PacketMapData extends Packet {
         IoBuffer buff = IoBuffer.allocate(5);
         buff.setAutoExpand(true);
 
-        buff.putString(mapName, CFPacket.ENCODER);
-        buff.putString(mapAuthor, CFPacket.ENCODER);
+        buff.putPrefixedString(mapName, CFPacket.ENCODER);
+        buff.putPrefixedString(mapAuthor, CFPacket.ENCODER);
 
         buff.putInt(mapWidth);
         buff.putInt(mapHeight);
+
+        System.out.printf("[PACKET MAP DATA] Writing map size: (%d, %d)\n", mapWidth, mapHeight);
 
         for (int x = 0; x < tiles.length; x++) {
             for (int y = 0; y < tiles[x].length; y++) {

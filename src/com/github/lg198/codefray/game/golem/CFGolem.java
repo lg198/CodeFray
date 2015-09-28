@@ -13,9 +13,6 @@ import com.github.lg198.codefray.api.math.Vector;
 import com.github.lg198.codefray.game.CFGame;
 import com.github.lg198.codefray.game.GameEndReason;
 import com.github.lg198.codefray.game.map.MapTile;
-import com.github.lg198.codefray.game.map.WallTile;
-import com.github.lg198.codefray.net.CodeFrayServer;
-import com.github.lg198.codefray.net.protocol.packet.PacketGolemMove;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -133,13 +130,6 @@ public class CFGolem implements Golem {
             setLocation(getLocation().in(d));
             game.getMap().moveGolem(this, old);
             movesLeft--;
-            if (game.isBroadcasted()) {
-                PacketGolemMove pgm = new PacketGolemMove();
-                pgm.id = getId();
-                pgm.x = getLocation().getX();
-                pgm.y = getLocation().getY();
-                CodeFrayServer.safeBroadcast(pgm);
-            }
         }
     }
 
