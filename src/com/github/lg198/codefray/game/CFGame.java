@@ -22,6 +22,8 @@ import javafx.application.Platform;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,12 +35,13 @@ public class CFGame implements Game, GameBoardProvider {
     private final Team[] teams;
     private final Map<Team, CFGolemController> controllerMap;
     private final MainGui gui;
-    private GameLog log;
 
     private volatile boolean running = false;
     private volatile boolean paused = false;
     private long round = 0;
     private int clockSpeed = 1333;
+
+    private final File logFolder;
 
     private GameClock clock;
 
@@ -52,11 +55,15 @@ public class CFGame implements Game, GameBoardProvider {
         controllerMap = cm;
         gui = new MainGui(this, bc);
 
-        File folder = new File(System.getProperty("user.home"), ".codefray_v1");
-        if (!folder.exists()) {
-            folder.mkdir();
+        logFolder = new File(System.getProperty("user.home"), "Codefray_v1");
+        if (!logFolder.exists()) {
+            logFolder.mkdir();
         }
-        log = new GameLog(this, folder);
+        for (Team key : cm.keySet()) {
+            CFGolemController controller = cm.get(key);
+            File logFile = new File(logFolder, "CFLog_" + DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now()) + "_" + key.name().toLowerCase() + ".txt");
+            controller.logFile = logFile;
+        }
 
         broadcasted = bc;
 
