@@ -191,13 +191,13 @@ public class CFGame implements Game, GameBoardProvider {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                CodeFrayApplication.switchToResult(s, log.getLogFile());
+                CodeFrayApplication.switchToResult(s);
             }
         });
 
         if (broadcasted) {
             try {
-                CodeFrayServer.stop(reason);
+                CodeFrayServer.stop(s);
             } catch (IOException e) {
                 ErrorAlert.createAlert(
                         "Error",

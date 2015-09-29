@@ -2,6 +2,7 @@ package com.github.lg198.codefray.net;
 
 import com.github.lg198.codefray.game.CFGame;
 import com.github.lg198.codefray.game.GameEndReason;
+import com.github.lg198.codefray.game.GameStatistics;
 import com.github.lg198.codefray.net.protocol.CFProtocolFactory;
 import com.github.lg198.codefray.net.protocol.packet.Packet;
 import com.github.lg198.codefray.net.protocol.packet.PacketGameEnd;
@@ -42,10 +43,16 @@ public class CodeFrayServer {
         acceptor.bind(new InetSocketAddress(PORT));
     }
 
-    public static void stop(GameEndReason r) throws IOException {
+    public static void stop(GameStatistics s) throws IOException {
         PacketGameEnd end = new PacketGameEnd();
-        r.filPacket(end);
-        acceptor.broadcast(end).forEach(writeFuture -> writeFuture.awaitUninterruptibly());
+        s.reason.filPacket(end);
+        end.rounds = s.rounds;
+        end.timeInSeconds = s.timeInSeconds;
+        end.redLeft = s.redLeft;
+        end.blueLeft = s.blueLeft;
+        end.redHealthPercent = s.redHealthPercent;
+        end.blueHealthPercent = s.blueHealthPercent;
+        acceptor.broadcast(end).forEach(writeFuture -> writeFuture.awaitUninterruptibly(5000));
         acceptor.dispose(true);
         running = false;
     }

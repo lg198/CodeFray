@@ -4,6 +4,7 @@ import com.github.lg198.codefray.api.game.Team;
 import com.github.lg198.codefray.api.math.Point;
 import com.github.lg198.codefray.game.GameBoardProvider;
 import com.github.lg198.codefray.game.GameEndReason;
+import com.github.lg198.codefray.game.GameStatistics;
 import com.github.lg198.codefray.game.map.MapTile;
 import com.github.lg198.codefray.jfx.CodeFrayApplication;
 import com.github.lg198.codefray.net.CodeFrayClient;
@@ -93,7 +94,7 @@ public class ViewGame implements GameBoardProvider {
         } else {
             reason = new GameEndReason.Win(Team.values()[end.winner], GameEndReason.Win.Reason.values()[end.reason]);
         }
-        stop(reason);
+        stop(end, reason);
     }
 
     public void recGamePause(PacketGamePause pause) {
@@ -129,8 +130,17 @@ public class ViewGame implements GameBoardProvider {
         updateThread(() -> gui.summary.statusStart());
     }
 
-    private void stop(GameEndReason reason) {
+    private void stop(PacketGameEnd end, GameEndReason reason) {
+        GameStatistics s = new GameStatistics();
+        s.reason = reason;
+        s.rounds = end.rounds;
+        s.timeInSeconds = end.timeInSeconds;
+        s.redLeft = end.redLeft;
+        s.blueLeft = end.blueLeft;
+        s.redHealthPercent = end.redHealthPercent;
+        s.blueHealthPercent = end.blueHealthPercent;
 
+        CodeFrayApplication.switchToResult(s);
     }
 
     private void updateGui() {

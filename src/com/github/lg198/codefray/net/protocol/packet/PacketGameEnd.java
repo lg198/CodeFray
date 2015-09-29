@@ -8,6 +8,10 @@ public class PacketGameEnd extends Packet {
 
     public int type, reason, winner, guilty;
 
+    public long rounds, timeInSeconds;
+    public int redLeft, blueLeft;
+    public double redHealthPercent, blueHealthPercent;
+
     @Override
     public void read(byte[] content) throws IOException {
         IoBuffer buff = IoBuffer.wrap(content);
@@ -20,6 +24,12 @@ public class PacketGameEnd extends Packet {
             reason = buff.getInt();
             guilty = buff.getInt();
         }
+        rounds = buff.getLong();
+        timeInSeconds = buff.getLong();
+        redLeft = buff.getInt();
+        blueLeft = buff.getInt();
+        redHealthPercent = buff.getDouble();
+        blueHealthPercent = buff.getDouble();
     }
 
     @Override
@@ -34,6 +44,12 @@ public class PacketGameEnd extends Packet {
             buff.putInt(reason);
             buff.putInt(winner);
         }
+        buff.putLong(rounds);
+        buff.putLong(timeInSeconds);
+        buff.putInt(redLeft);
+        buff.putInt(blueLeft);
+        buff.putDouble(redHealthPercent);
+        buff.putDouble(blueHealthPercent);
 
         buff.flip();
         return buff.array();
