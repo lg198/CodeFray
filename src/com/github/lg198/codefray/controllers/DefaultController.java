@@ -33,7 +33,7 @@ public class DefaultController implements GolemController {
 
 
     private void onRoundRunner(Golem g) {
-        shootAll(g);
+        //shootAll(g);
         if (g.getLocation().equals(g.getGame().getFlagLocation(otherTeam)) || g.isHoldingFlag()) {
             boolean result;
             do {
