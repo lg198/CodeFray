@@ -436,6 +436,7 @@ public class CFGame implements Game, GameBoardProvider {
         info.redName = getController(Team.RED).devId;
         info.blueName = getController(Team.BLUE).devId;
         info.gameStarted = isRunning();
+        info.totalHealth = totalHealth;
     }
 
 }

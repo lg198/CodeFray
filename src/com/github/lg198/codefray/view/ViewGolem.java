@@ -7,6 +7,8 @@ public class ViewGolem {
     public int type;
     public int team;
 
+    public int health;
+
     public ViewGolem(int x, int y, int id, int type, int team) {
         this.x = x;
         this.y = y;

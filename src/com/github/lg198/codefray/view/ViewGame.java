@@ -5,6 +5,7 @@ import com.github.lg198.codefray.api.math.Point;
 import com.github.lg198.codefray.game.GameBoardProvider;
 import com.github.lg198.codefray.game.GameEndReason;
 import com.github.lg198.codefray.game.GameStatistics;
+import com.github.lg198.codefray.game.golem.CFGolem;
 import com.github.lg198.codefray.game.map.MapTile;
 import com.github.lg198.codefray.jfx.CodeFrayApplication;
 import com.github.lg198.codefray.net.CodeFrayClient;
@@ -19,6 +20,7 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class ViewGame implements GameBoardProvider {
@@ -35,6 +37,9 @@ public class ViewGame implements GameBoardProvider {
     private boolean paused = false;
     public volatile boolean initialized = false;
 
+    public int totalHealth;
+    public double redHealth, blueHealth;
+
     public ViewGui gui;
 
     public ViewGame(ViewProfile vp) {
@@ -47,6 +52,7 @@ public class ViewGame implements GameBoardProvider {
         redName = info.redName;
         redControllerName = info.redControllerName;
         blueControllerName = info.blueControllerName;
+        totalHealth = info.totalHealth;
         running = info.gameStarted;
         if (running && initialized) {
             start();
@@ -116,7 +122,17 @@ public class ViewGame implements GameBoardProvider {
     }
 
     public void recGolemUpdate(PacketGolemUpdate update) {
-        //do nothing for now
+        ViewGolem go = golemList.stream().filter(g -> g.id == update.id).limit(1).collect(new SingleCollector<>());
+        go.health = update.health;
+
+        int health = golemList.stream().filter(g -> g.team == go.team).mapToInt(g -> g.health).sum();
+        if (go.team == 0) {
+            redHealth = health / (double) totalHealth;
+            updateThread(() -> gui.summary.redHealth.setProgress(redHealth));
+        } else {
+            blueHealth = health / (double) totalHealth;
+            updateThread(() -> gui.summary.blueHealth.setProgress(blueHealth));
+        }
     }
 
     public void recChat(PacketChatToClient chat) {

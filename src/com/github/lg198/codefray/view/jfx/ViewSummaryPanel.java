@@ -5,14 +5,19 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+
+import javax.swing.plaf.ProgressBarUI;
 
 public class ViewSummaryPanel {
 
     public Label round = new Label("0");
     public Label status = new Label("Not Started");
+
+    public ProgressBar redHealth, blueHealth;
 
 
     public VBox build() {
@@ -44,6 +49,28 @@ public class ViewSummaryPanel {
         info.getChildren().add(status);
 
         panel.getChildren().add(info);
+
+        VBox healthv = new VBox();
+        healthv.setAlignment(Pos.CENTER);
+        HBox redhealthh = new HBox(), bluehealthh = new HBox();
+        redhealthh.setAlignment(Pos.CENTER);
+        bluehealthh.setAlignment(Pos.CENTER);
+        redhealthh.setSpacing(3);
+        bluehealthh.setSpacing(3);
+        healthv.setSpacing(6);
+
+        redHealth = new ProgressBar();
+        redHealth.setProgress(1);
+        blueHealth = new ProgressBar();
+        blueHealth.setProgress(1);
+
+        redHealth.setStyle("-fx-accent: red");
+        blueHealth.setStyle("-fx-accent: blue");
+
+        redhealthh.getChildren().addAll(new Label("Red Health:"), redHealth);
+        bluehealthh.getChildren().addAll(new Label("Blue Health:"), blueHealth);
+        healthv.getChildren().addAll(redhealthh, bluehealthh);
+        panel.getChildren().add(healthv);
 
         return panel;
     }

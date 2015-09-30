@@ -11,6 +11,7 @@ public class PacketGameInfo extends Packet {
 
     public String redName, blueName, redControllerName, blueControllerName;
     public boolean gameStarted;
+    public int totalHealth;
 
     @Override
     public void read(byte[] content) throws IOException {
@@ -19,6 +20,7 @@ public class PacketGameInfo extends Packet {
         blueName = buff.getPrefixedString(CFPacket.DECODER);
         redControllerName = buff.getPrefixedString(CFPacket.DECODER);
         blueControllerName = buff.getPrefixedString(CFPacket.DECODER);
+        totalHealth = buff.getInt();
         gameStarted = buff.get() == 1 ? true : false;
     }
 
@@ -31,6 +33,7 @@ public class PacketGameInfo extends Packet {
         buff.putPrefixedString(blueName, CFPacket.ENCODER);
         buff.putPrefixedString(redControllerName, CFPacket.ENCODER);
         buff.putPrefixedString(blueControllerName, CFPacket.ENCODER);
+        buff.putInt(totalHealth);
         buff.put(gameStarted ? (byte) 1 : (byte) 0);
 
         buff.flip();
