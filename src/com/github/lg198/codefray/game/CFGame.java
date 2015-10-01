@@ -228,6 +228,9 @@ public class CFGame implements Game, GameBoardProvider {
         Collections.shuffle(golems);
         for (CFGolem g : golems) {
             g.update();
+            if (g.getHealth() <= 0) {
+                continue;
+            }
             try {
                 controllerMap.get(g.getTeam()).onRound(new CFGolemWrapper(round, g));
             } catch (Exception e) {
