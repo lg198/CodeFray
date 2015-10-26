@@ -36,6 +36,8 @@ public class BroadcastPanel {
         panel.getChildren().add(buildInfoBox());
         panel.getChildren().add(buildLogBox());
 
+        Stylizer.set(panel, "-fx-background-color", "whitesmoke");
+
         return panel;
     }
 
@@ -56,6 +58,8 @@ public class BroadcastPanel {
         viewersBox.getChildren().add(viewersLabel);
         info.getChildren().add(viewersBox);
 
+        VBox.setVgrow(info, Priority.NEVER);
+
         return info;
     }
 
@@ -68,14 +72,14 @@ public class BroadcastPanel {
         logFlow.setMaxWidth(350);
         logFlow.setTextAlignment(TextAlignment.LEFT);
         flowScroll.setMaxWidth(350);
-        flowScroll.setMaxHeight(Double.MAX_VALUE);
+        logFlow.setMaxHeight(Double.MAX_VALUE);
+        flowScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         log.getChildren().add(flowScroll);
         VBox.setVgrow(flowScroll, Priority.ALWAYS);
 
-        return log;
-    }
+        VBox.setVgrow(log, Priority.ALWAYS);
 
-    public void update() {
+        return log;
     }
 
     public void setViewers(int v) {

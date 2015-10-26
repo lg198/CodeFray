@@ -64,6 +64,9 @@ public class MainGui {
             AnchorPane.setLeftAnchor(p2, 0d);
             ap.getChildren().add(p2);
 
+            Stylizer.set(ap, "-fx-background-color", "red");
+            p2.setMaxHeight(Double.MAX_VALUE);
+
             return ap;
         }
 
