@@ -68,8 +68,9 @@ public class BroadcastPanel {
         logFlow.setMaxWidth(350);
         logFlow.setTextAlignment(TextAlignment.LEFT);
         flowScroll.setMaxWidth(350);
+        flowScroll.setMaxHeight(Double.MAX_VALUE);
         log.getChildren().add(flowScroll);
-        VBox.setVgrow(log, Priority.ALWAYS);
+        VBox.setVgrow(flowScroll, Priority.ALWAYS);
 
         return log;
     }
