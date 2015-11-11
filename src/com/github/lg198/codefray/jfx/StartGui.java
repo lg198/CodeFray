@@ -33,8 +33,9 @@ public class StartGui {
     public static final Image LOCAL_IMG = new Image(ResourceManager.getIcon("personal.png"));
     public static final Image EYE_IMG = new Image(ResourceManager.getIcon("eye.png"));
     public static final Image UPLOAD_IMG = new Image(ResourceManager.getIcon("uploads.png"));
+    public static final Image EDIT_IMG = new Image(ResourceManager.getIcon("pencil.png"));
 
-    private HBox localBox, eyeBox, uploadBox;
+    private HBox localBox, eyeBox, uploadBox, editBox;
     private Stage stage;
 
 
@@ -56,6 +57,7 @@ public class StartGui {
         localBox = buildSelectionBox(LOCAL_IMG, "Run Local Game", "Run a CodeFray game on your current computer.");
         eyeBox = buildSelectionBox(EYE_IMG, "View Remote Game", "View a CodeFray game that is currently being broadcasted live.");
         uploadBox = buildSelectionBox(UPLOAD_IMG, "Host Remote Game", "Host a CodeFray game so that others can view it live.");
+        editBox = buildSelectionBox(EDIT_IMG, "Level Editor", "Create or modify CodeFray level files.");
 
         EventHandler<MouseEvent> handler = (MouseEvent e) -> {
             if (e.getSource() == localBox) {
@@ -64,7 +66,7 @@ public class StartGui {
             } else if (e.getSource() == eyeBox) {
                 stage.close();
                 CodeFrayApplication.startViewGame();
-            } else {
+            } else if (e.getSource() == uploadBox){
                 stage.close();
                 CodeFrayApplication.startBroadcastedGame();
             }
@@ -73,6 +75,7 @@ public class StartGui {
         localBox.setOnMouseClicked(handler);
         eyeBox.setOnMouseClicked(handler);
         uploadBox.setOnMouseClicked(handler);
+        editBox.setOnMouseClicked(handler);
 
         Label title = new Label("Welcome to CodeFray");
         Stylizer.set(title, "-fx-font-size", "30px");
@@ -89,6 +92,7 @@ public class StartGui {
         box.getChildren().add(localBox);
         box.getChildren().add(eyeBox);
         box.getChildren().add(uploadBox);
+        box.getChildren().add(editBox);
 
         HBox exitBox = new HBox();
         Label exitLabel = new Label("Quit");
