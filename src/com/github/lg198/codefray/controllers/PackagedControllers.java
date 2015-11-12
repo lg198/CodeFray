@@ -14,6 +14,7 @@ public class PackagedControllers {
 
     public static void init() {
         controllers.put("default", DefaultController.class);
+        controllers.put("aggressive offense", AggressiveOffenseController.class);
     }
 
     public static boolean controllerExists(String s) {
@@ -30,7 +31,7 @@ public class PackagedControllers {
         }
         Class<? extends GolemController> c = controllers.get(s);
         try {
-            GolemController gc = (GolemController) c.newInstance();
+            GolemController gc = c.newInstance();
             return ControllerLoader.wrapController(gc);
         } catch (InstantiationException e) {
             e.printStackTrace();

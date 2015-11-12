@@ -11,7 +11,7 @@ import com.github.lg198.codefray.api.math.Direction;
         id = "com.github.lg198.Default",
         name = "CodeFray v1 Included Controller - Default",
         version = "1.0",
-        devId = "dfc61082ebcc29a8eee96284e2a26e42")
+        devId = "default")
 public class DefaultController implements GolemController {
 
     public boolean initialized = false;
