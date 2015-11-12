@@ -1,10 +1,7 @@
 package com.github.lg198.codefray.controllers;
 
 import com.github.lg198.codefray.api.game.Team;
-import com.github.lg198.codefray.api.golem.ControllerDef;
-import com.github.lg198.codefray.api.golem.Golem;
-import com.github.lg198.codefray.api.golem.GolemController;
-import com.github.lg198.codefray.api.golem.GolemType;
+import com.github.lg198.codefray.api.golem.*;
 import com.github.lg198.codefray.api.math.Direction;
 
 import java.io.PrintWriter;
@@ -53,11 +50,20 @@ public class AggressiveOffenseController implements GolemController {
     }
 
     private void onRoundDefender(Golem g) {
+        List<GolemInfo> search = g.search();
+        //sort closest to furthest
+        if (search.size() > 0) {
+            if (search.size() >= g.getShotsLeft()) {
+                //shoot closest only
+            } else {
+                //shoot closest more
+            }
+        }
         while (g.getMovesLeft() > 0) {
             //move somewhere... SOMEWHERE!
             randomDirectionStream().forEach(d -> {
                 if (g.canMove(d)) {
-                    
+                    g.move(d);
                 }
             });
         }
