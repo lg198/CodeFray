@@ -2,11 +2,12 @@ package com.github.lg198.codefray.controllers;
 
 import com.github.lg198.codefray.api.game.Team;
 import com.github.lg198.codefray.api.golem.*;
-import com.github.lg198.codefray.api.math.Direction;
+import com.github.lg198.codefray.api.math.*;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -51,12 +52,13 @@ public class AggressiveOffenseController implements GolemController {
 
     private void onRoundDefender(Golem g) {
         List<GolemInfo> search = g.search();
-        //sort closest to furthest
+        Collections.sort(search, (o1, o2) -> manhattanDistance(g.getLocation(), o1.getLocation()) - manhattanDistance(g.getLocation(), o2.getLocation()));
         if (search.size() > 0) {
-            if (search.size() >= g.getShotsLeft()) {
-                //shoot closest only
-            } else {
-                //shoot closest more
+            for (GolemInfo gi : cyclicIterator(search)) {
+                if (g.getShotsLeft() < 1) {
+                    break;
+                }
+                g.shoot(gi);
             }
         }
         while (g.getMovesLeft() > 0) {
@@ -73,9 +75,86 @@ public class AggressiveOffenseController implements GolemController {
 
     }
 
+    private void initPath(Golem g, Point start, Point end) {
+        PriorityQueue<Point> frontier = createPriorityQueue(end);
+        frontier.add(start);
+    }
+
     private Stream<Direction> randomDirectionStream() {
         List l = Arrays.asList(Arrays.copyOf(Direction.values(), Direction.values().length));
         Collections.shuffle(l);
         return l.stream();
+    }
+
+    private PriorityQueue<Point> createPriorityQueue(Point end) {
+        return new PriorityQueue<>((o1, o2) -> manhattanDistance(o1, end) - manhattanDistance(o2, end));
+    }
+
+    private int manhattanDistance(Point a, Point b) {
+        return Math.abs(a.getX() - b.getX()) + Math.abs(a.getY() - b.getY());
+    }
+
+    private <T> Iterable<T> cyclicIterator(List<T> l) {
+        Iterable<T> i = new Iterable<T>() {
+            @Override
+            public Iterator<T> iterator() {
+                return new Iterator<T>() {
+
+                    private int current = 0;
+
+                    @Override
+                    public boolean hasNext() {
+                        return true;
+                    }
+
+                    @Override
+                    public T next() {
+                        if (current >= l.size()) {
+                            current = 0;
+                        }
+                        return l.get(current++);
+                    }
+                };
+            }
+
+            @Override
+            public Spliterator<T> spliterator() {
+                return new Spliterator<T>() {
+
+                    private int current = 0;
+
+                    @Override
+                    public boolean tryAdvance(Consumer<? super T> action) {
+                        if (current + 1 >= l.size()) {
+                            action.accept(l.get(0));
+                        } else {
+                            action.accept(l.get(current+1));
+                        }
+                        return true;
+                    }
+
+                    @Override
+                    public Spliterator<T> trySplit() {
+                        return null;
+                    }
+
+                    @Override
+                    public long estimateSize() {
+                        return 0;
+                    }
+
+                    @Override
+                    public int characteristics() {
+                        return 0;
+                    }
+                };
+            }
+
+            @Override
+            public void forEach(Consumer<? super T> action) {
+                l.forEach(action);
+            }
+        };
+        return i;
     }
 }
