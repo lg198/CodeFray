@@ -26,7 +26,8 @@ public class AggressiveOffenseController implements GolemController {
     public static Team thisTeam, thatTeam;
     public static boolean initialized = false;
 
-    public Map<Integer, Queue<Direction>> paths = new HashMap<>();
+    public static int golemWithFlag = -1;
+    public Map<Integer, Deque<Direction>> paths = new HashMap<>();
 
     @Override
     public void onRound(Golem g) {
@@ -52,6 +53,17 @@ public class AggressiveOffenseController implements GolemController {
     }
 
     private void onRoundDefender(Golem g) {
+        shootAsManyAsPossible(g);
+        while (g.getMovesLeft() > 0) {
+            randomDirectionStream().forEach(d -> {
+                if (g.canMove(d)) {
+                    g.move(d);
+                }
+            });
+        }
+    }
+
+    private void shootAsManyAsPossible(Golem g) {
         List<GolemInfo> search = g.search();
         Collections.sort(search, (o1, o2) -> manhattanDistance(g.getLocation(), o1.getLocation()) - manhattanDistance(g.getLocation(), o2.getLocation()));
         if (search.size() > 0) {
@@ -62,18 +74,27 @@ public class AggressiveOffenseController implements GolemController {
                 g.shoot(gi);
             }
         }
-        while (g.getMovesLeft() > 0) {
-            //move somewhere... SOMEWHERE!
-            randomDirectionStream().forEach(d -> {
-                if (g.canMove(d)) {
-                    g.move(d);
-                }
-            });
-        }
     }
 
     private void onRoundOffense(Golem g) {
-
+        if (g.getId() == golemWithFlag && !g.isHoldingFlag()) {
+            golemWithFlag = -1;
+        }
+        if (golemWithFlag > -1) { //someone has the flag, just shoot people
+            paths.clear();
+            shootAsManyAsPossible(g);
+        } else { //still looking for the flag
+            if (!paths.containsKey(g.getId())) { //gotta generate the path to the flag!
+                initPath(g, g.getGame().getFlagLocation(thatTeam));
+            }
+            while (g.getMovesLeft() > 0) {
+                if (paths.get(g.getId()).size() < 1) { //reached flag
+                    System.out.println(g.getId() + " has picked up the flag... it thinks. " + g.isHoldingFlag());
+                    golemWithFlag = g.getId();
+                }
+                g.move(paths.get(g.getId()).pollFirst());
+            }
+        }
     }
 
     private void initPath(Golem g, Point end) {
@@ -89,8 +110,28 @@ public class AggressiveOffenseController implements GolemController {
                 break;
             }
 
-            
+            randomDirectionStream().filter(dir -> g.canMove(dir)).map(d -> g.getLocation().in(d)).forEach(p -> {
+                if (cameFrom.containsKey(p)) return;
+                int priority = manhattanDistance(end, p);
+                frontier.add(p, priority);
+                cameFrom.put(p, current);
+            });
         }
+
+        Point current = end;
+        LinkedList<Point> path = new LinkedList<>();
+        path.add(current);
+        while (!current.equals(g.getLocation())) {
+            current = cameFrom.get(current);
+            path.add(current);
+        }
+        Collections.reverse(path);
+
+        Deque<Direction> realPath = new LinkedList<>();
+        for (int i = 0; i < path.size() - 1; i++) {
+            realPath.addLast(Direction.between(path.get(i), path.get(i + 1)));
+        }
+        paths.put(g.getId(), realPath);
     }
 
     private Stream<Direction> randomDirectionStream() {
