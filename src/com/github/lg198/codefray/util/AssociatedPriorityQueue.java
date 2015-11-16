@@ -1,98 +1,62 @@
 package com.github.lg198.codefray.util;
 
 import java.util.*;
+import java.util.function.Consumer;
 
-public class AssociatedPriorityQueue<T> implements Queue<T> {
+public class AssociatedPriorityQueue<T> implements Iterable<T> {
 
-    private Map<T, Integer> priority = new HashMap<>();
+    private Map<T, Float> priority = new HashMap<>();
 
-    @Override
-    public boolean add(T t) {
-        return false;
+    private LinkedList<T> items = new LinkedList<>();
+
+    public void add(T t, float p) {
+        priority.put(t, p);
+        boolean found = false;
+        for (int i = 0; i < items.size(); i++) {
+            if (p < priority.get(items.get(i))) {
+                items.add(i, t);
+                found = true;
+            }
+        }
+        if (!found) {
+            items.add(t);
+        }
     }
 
-    @Override
-    public boolean offer(T t) {
-        return false;
+    public void remove(int i) {
+        T t = items.remove(i);
+        priority.remove(t);
     }
 
-    @Override
-    public T remove() {
-        return null;
+    public T get(int i) {
+        return items.get(i);
     }
 
-    @Override
-    public T poll() {
-        return null;
-    }
-
-    @Override
-    public T element() {
-        return null;
-    }
-
-    @Override
-    public T peek() {
-        return null;
-    }
-
-    @Override
     public int size() {
-        return 0;
+        return items.size();
     }
 
-    @Override
+    public void clear() {
+        priority.clear();
+        items.clear();
+    }
+
     public boolean isEmpty() {
-        return false;
+        return items.isEmpty();
     }
 
     @Override
-    public boolean contains(Object o) {
-        return false;
+    public Spliterator<T> spliterator() {
+        return items.spliterator();
+    }
+
+    @Override
+    public void forEach(Consumer<? super T> action) {
+        items.forEach(action);
     }
 
     @Override
     public Iterator<T> iterator() {
-        return null;
-    }
-
-    @Override
-    public Object[] toArray() {
-        return new Object[0];
-    }
-
-    @Override
-    public <T1> T1[] toArray(T1[] a) {
-        return null;
-    }
-
-    @Override
-    public boolean remove(Object o) {
-        return false;
-    }
-
-    @Override
-    public boolean containsAll(Collection<?> c) {
-        return false;
-    }
-
-    @Override
-    public boolean addAll(Collection<? extends T> c) {
-        return false;
-    }
-
-    @Override
-    public boolean removeAll(Collection<?> c) {
-        return false;
-    }
-
-    @Override
-    public boolean retainAll(Collection<?> c) {
-        return false;
-    }
-
-    @Override
-    public void clear() {
-
+        return items.iterator();
     }
 }

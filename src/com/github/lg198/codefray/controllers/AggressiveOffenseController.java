@@ -3,6 +3,7 @@ package com.github.lg198.codefray.controllers;
 import com.github.lg198.codefray.api.game.Team;
 import com.github.lg198.codefray.api.golem.*;
 import com.github.lg198.codefray.api.math.*;
+import com.github.lg198.codefray.util.AssociatedPriorityQueue;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -75,19 +76,27 @@ public class AggressiveOffenseController implements GolemController {
 
     }
 
-    private void initPath(Golem g, Point start, Point end) {
-        PriorityQueue<Point> frontier = createPriorityQueue(end);
-        frontier.add(start);
+    private void initPath(Golem g, Point end) {
+        AssociatedPriorityQueue<Point> frontier = new AssociatedPriorityQueue<>();
+        frontier.add(g.getLocation(), 0);
+        Map<Point, Point> cameFrom = new HashMap<>();
+        cameFrom.put(g.getLocation(), null);
+
+        while (!frontier.isEmpty()) {
+            Point current = frontier.get(0);
+
+            if (current.equals(end)) {
+                break;
+            }
+
+            
+        }
     }
 
     private Stream<Direction> randomDirectionStream() {
         List l = Arrays.asList(Arrays.copyOf(Direction.values(), Direction.values().length));
         Collections.shuffle(l);
         return l.stream();
-    }
-
-    private PriorityQueue<Point> createPriorityQueue(Point end) {
-        return new PriorityQueue<>((o1, o2) -> manhattanDistance(o1, end) - manhattanDistance(o2, end));
     }
 
     private int manhattanDistance(Point a, Point b) {
