@@ -104,7 +104,7 @@ public class AggressiveOffenseController implements GolemController {
         cameFrom.put(g.getLocation(), null);
 
         while (!frontier.isEmpty()) {
-            Point current = frontier.get(0);
+            Point current = frontier.getRem();
 
             if (current.equals(end)) {
                 break;

@@ -10,15 +10,18 @@ public class AssociatedPriorityQueue<T> implements Iterable<T> {
     private LinkedList<T> items = new LinkedList<>();
 
     public void add(T t, float p) {
+        System.out.println("Adding " + t + ". Exists?: " + priority.containsKey(t) + ". Priority: " + p);
         priority.put(t, p);
         boolean found = false;
         for (int i = 0; i < items.size(); i++) {
             if (p < priority.get(items.get(i))) {
                 items.add(i, t);
                 found = true;
+                break;
             }
         }
         if (!found) {
+            System.out.println("Not found, whoops!");
             items.add(t);
         }
     }
@@ -30,6 +33,10 @@ public class AssociatedPriorityQueue<T> implements Iterable<T> {
 
     public T get(int i) {
         return items.get(i);
+    }
+
+    public T getRem() {
+        return items.remove(0);
     }
 
     public int size() {
