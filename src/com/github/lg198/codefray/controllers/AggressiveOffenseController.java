@@ -1,9 +1,10 @@
 package com.github.lg198.codefray.controllers;
 
 import com.github.lg198.codefray.api.game.Team;
+import com.github.lg198.codefray.api.game.TileType;
 import com.github.lg198.codefray.api.golem.*;
-import com.github.lg198.codefray.api.math.*;
-import com.github.lg198.codefray.util.AssociatedPriorityQueue;
+import com.github.lg198.codefray.api.math.Direction;
+import com.github.lg198.codefray.api.math.Point;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -88,7 +89,7 @@ public class AggressiveOffenseController implements GolemController {
                 initPath(g, g.getGame().getFlagLocation(thatTeam));
             }
             while (g.getMovesLeft() > 0) {
-                if (paths.get(g.getId()).size() < 1) { //reached flag
+                if (g.getLocation().equals(g.getGame().getFlagLocation(thatTeam))) { //reached flag
                     System.out.println(g.getId() + " has picked up the flag... it thinks. " + g.isHoldingFlag());
                     golemWithFlag = g.getId();
                 }
@@ -98,40 +99,44 @@ public class AggressiveOffenseController implements GolemController {
     }
 
     private void initPath(Golem g, Point end) {
-        AssociatedPriorityQueue<Point> frontier = new AssociatedPriorityQueue<>();
-        frontier.add(g.getLocation(), 0);
+        Queue<Point> frontier = new LinkedList<>();
+        frontier.add(g.getLocation());
         Map<Point, Point> cameFrom = new HashMap<>();
         cameFrom.put(g.getLocation(), null);
 
         while (!frontier.isEmpty()) {
-            Point current = frontier.getRem();
+            Point current = frontier.poll();
 
-            if (current.equals(end)) {
-                break;
-            }
+            //if (current.equals(end)) break;
 
-            randomDirectionStream().filter(dir -> g.canMove(dir)).map(d -> g.getLocation().in(d)).forEach(p -> {
-                if (cameFrom.containsKey(p)) return;
-                int priority = manhattanDistance(end, p);
-                frontier.add(p, priority);
-                cameFrom.put(p, current);
-            });
+            Arrays.stream(Direction.values())
+                    .filter(d -> current.in(d).inBounds(0, g.getGame().getMapWidth(), 0, g.getGame().getMapHeight()))
+                    .map(d -> current.in(d))
+                    .filter(p -> g.getGame().getTypeAt(p) != TileType.WALL)
+                    .forEach(next -> {
+                        if (!cameFrom.containsKey(next)) {
+                            frontier.add(next);
+                            cameFrom.put(next, current);
+                            System.out.println("putting " + next + "into cameFrom. End is " + end);
+                        }
+                    });
         }
 
         Point current = end;
-        LinkedList<Point> path = new LinkedList<>();
+        List<Point> path = new ArrayList<>();
         path.add(current);
         while (!current.equals(g.getLocation())) {
+            System.out.println("Current: " + current + " cameFrom[current] = " + cameFrom.get(current));
             current = cameFrom.get(current);
             path.add(current);
         }
         Collections.reverse(path);
-
-        Deque<Direction> realPath = new LinkedList<>();
+        LinkedList<Direction> dirpath = new LinkedList<>();
         for (int i = 0; i < path.size() - 1; i++) {
-            realPath.addLast(Direction.between(path.get(i), path.get(i + 1)));
+            Direction d = Direction.between(path.get(i), path.get(i+1));
+            dirpath.add(d);
         }
-        paths.put(g.getId(), realPath);
+        paths.put(g.getId(), dirpath);
     }
 
     private Stream<Direction> randomDirectionStream() {
@@ -178,7 +183,7 @@ public class AggressiveOffenseController implements GolemController {
                         if (current + 1 >= l.size()) {
                             action.accept(l.get(0));
                         } else {
-                            action.accept(l.get(current+1));
+                            action.accept(l.get(current + 1));
                         }
                         return true;
                     }

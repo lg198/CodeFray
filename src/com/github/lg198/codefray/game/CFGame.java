@@ -430,7 +430,11 @@ public class CFGame implements Game, GameBoardProvider {
 
     @Override
     public TileType getTypeAt(Point p) {
-        return map.getTile(p).getTileType();
+        MapTile tile = map.getTile(p);
+        if (tile == null) {
+            return TileType.EMPTY;
+        }
+        return tile.getTileType();
     }
 
     public void fillPacket(PacketGameInfo info) {
