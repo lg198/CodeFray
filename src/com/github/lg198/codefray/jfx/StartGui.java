@@ -69,6 +69,9 @@ public class StartGui {
             } else if (e.getSource() == uploadBox){
                 stage.close();
                 CodeFrayApplication.startBroadcastedGame();
+            } else if (e.getSource() == editBox) {
+                stage.close();
+                CodeFrayApplication.startLevelEditor();
             }
         };
 

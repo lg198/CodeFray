@@ -6,6 +6,7 @@ import com.github.lg198.codefray.game.CFGame;
 import com.github.lg198.codefray.game.GameStatistics;
 import com.github.lg198.codefray.game.golem.CFGolemController;
 import com.github.lg198.codefray.game.map.CFMap;
+import com.github.lg198.codefray.levelbuilder.jfx.LevelBuilderApplication;
 import com.github.lg198.codefray.load.ControllerLoader;
 import com.github.lg198.codefray.load.LoadException;
 import com.github.lg198.codefray.load.MapLoader;
@@ -160,6 +161,10 @@ public class CodeFrayApplication extends Application {
         primaryStage.setTitle("CodeFray Game Viewer");
         primaryStage.setMaximized(true);
         primaryStage.show();
+    }
+
+    public static void startLevelEditor() {
+        new LevelBuilderApplication().start(primaryStage);
     }
 
 
