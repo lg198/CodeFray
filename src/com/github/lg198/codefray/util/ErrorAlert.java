@@ -11,6 +11,7 @@ public class ErrorAlert {
 
     public static Alert createAlert(String title, String header, String content, Throwable t) {
         Alert a = new Alert(AlertType.ERROR);
+        a.setResizable(true);
 
         a.setTitle(title);
         if (header != null) a.setHeaderText(header);

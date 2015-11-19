@@ -7,6 +7,7 @@ import com.github.lg198.codefray.game.GameStatistics;
 import com.github.lg198.codefray.game.golem.CFGolemController;
 import com.github.lg198.codefray.game.map.CFMap;
 import com.github.lg198.codefray.load.ControllerLoader;
+import com.github.lg198.codefray.load.LoadException;
 import com.github.lg198.codefray.load.MapLoader;
 import com.github.lg198.codefray.net.CodeFrayClient;
 import com.github.lg198.codefray.net.CodeFrayServer;
@@ -14,16 +15,14 @@ import com.github.lg198.codefray.updater.CodeFrayUpdater;
 import com.github.lg198.codefray.util.ErrorAlert;
 import com.github.lg198.codefray.view.ViewGame;
 import com.github.lg198.codefray.view.jfx.UsernameGui;
-import com.github.lg198.codefray.view.jfx.ViewGui;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
-import javax.swing.text.View;
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,7 +65,7 @@ public class CodeFrayApplication extends Application {
                 CodeFrayUpdater.checkForUpdate();
             } catch (Exception e) {
                 ErrorAlert.createAlert("Error", "Failed to update CodeFray",
-                                       "An attempt to update CodeFray failed due to an error!", e);
+                        "An attempt to update CodeFray failed due to an error!", e);
             }
         } else {
             CodeFrayUpdater.VERSION = "Your Mom";
@@ -84,7 +83,15 @@ public class CodeFrayApplication extends Application {
     }
 
     private static void startGame(Stage stage, CFGolemController red, CFGolemController blue, File mapFile, boolean broadcasted) {
-        CFMap testMap = MapLoader.loadMap(mapFile);
+        CFMap testMap;
+        try {
+            testMap = MapLoader.loadMap(mapFile);
+        } catch (LoadException e) {
+            Alert a = ErrorAlert.createAlert("Error", "CodeFray failed to load map!", e.getMessage(), e);
+            a.setOnCloseRequest(event -> new StartGui().launch());
+            a.show();
+            return;
+        }
         Map<Team, CFGolemController> cmap = new HashMap<>();
         cmap.put(Team.RED, red);
         cmap.put(Team.BLUE, blue);

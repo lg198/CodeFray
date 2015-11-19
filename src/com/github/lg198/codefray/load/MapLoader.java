@@ -54,7 +54,15 @@ public class MapLoader {
 
             dis.close();
 
-            return new CFMap(tiles, mapName, mapAuthor);
+            CFMap map = new CFMap(tiles, mapName, mapAuthor);
+
+            String error = MapValidator.validate(map);
+
+            if (error == null) {
+                return map;
+            }
+
+            throw new LoadException("Invalid map. " + error);
         } catch (IOException e) {
             throw new LoadException("Could not load map!", e);
         }

@@ -87,6 +87,7 @@ public class AggressiveOffenseController implements GolemController {
                 if (!paths.containsKey(g.getId())) { //get the path home!
                     initPath(g, g.getGame().getWinLocation(thisTeam));
                 }
+                int waitCount = 0;
                 while (g.getMovesLeft() > 0) {
                     if (g.getLocation().equals(g.getGame().getWinLocation(thisTeam))) { //reached win
                         System.out.println(g.getId() + " has won the game... it thinks. ");
@@ -95,6 +96,9 @@ public class AggressiveOffenseController implements GolemController {
                     Direction d = paths.get(g.getId()).pollFirst();
                     if (g.canMove(d)) g.move(d);
                     else { //new path!
+                        if (++waitCount > 5) {
+                            break;
+                        }
                         initPath(g, g.getGame().getWinLocation(thisTeam));
                     }
 
@@ -106,6 +110,7 @@ public class AggressiveOffenseController implements GolemController {
             if (!paths.containsKey(g.getId())) { //gotta generate the path to the flag!
                 initPath(g, g.getGame().getFlagLocation(thatTeam));
             }
+            int waitCount = 0;
             while (g.getMovesLeft() > 0) {
                 if (g.getLocation().equals(g.getGame().getFlagLocation(thatTeam))) { //reached flag
                     System.out.println(g.getId() + " has picked up the flag... it thinks. " + g.isHoldingFlag());
@@ -116,9 +121,9 @@ public class AggressiveOffenseController implements GolemController {
                 Direction d = paths.get(g.getId()).pollFirst();
                 if (g.canMove(d)) g.move(d);
                 else {
-                    /*paths.get(g.getId()).addFirst(d);
-                    break;
-                    */
+                   if (++waitCount > 5) {
+                       break;
+                   }
                     initPath(g, g.getGame().getFlagLocation(thatTeam));
                 }
             }
