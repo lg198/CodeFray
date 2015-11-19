@@ -164,9 +164,11 @@ public class CFGame implements Game, GameBoardProvider {
         paused = false;
         clock.unpause();
         gui.panel.removeGolemBox();
-        PacketGamePause pause = new PacketGamePause();
-        pause.paused = false;
-        CodeFrayServer.safeBroadcast(pause);
+        if (broadcasted) {
+            PacketGamePause pause = new PacketGamePause();
+            pause.paused = false;
+            CodeFrayServer.safeBroadcast(pause);
+        }
     }
 
     public GameStatistics stop(GameEndReason reason) {

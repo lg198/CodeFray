@@ -80,10 +80,28 @@ public class AggressiveOffenseController implements GolemController {
     private void onRoundOffense(Golem g) {
         if (g.getId() == golemWithFlag && !g.isHoldingFlag()) {
             golemWithFlag = -1;
-        }
-        if (golemWithFlag > -1) { //someone has the flag, just shoot people
             paths.clear();
-            shootAsManyAsPossible(g);
+        }
+        if (golemWithFlag > -1) { //someone has the flag
+            if (golemWithFlag == g.getId()) { //you have flag
+                if (!paths.containsKey(g.getId())) { //get the path home!
+                    initPath(g, g.getGame().getWinLocation(thisTeam));
+                }
+                while (g.getMovesLeft() > 0) {
+                    if (g.getLocation().equals(g.getGame().getWinLocation(thisTeam))) { //reached win
+                        System.out.println(g.getId() + " has won the game... it thinks. ");
+                        break;
+                    }
+                    Direction d = paths.get(g.getId()).pollFirst();
+                    if (g.canMove(d)) g.move(d);
+                    else { //new path!
+                        initPath(g, g.getGame().getWinLocation(thisTeam));
+                    }
+
+                }
+            } else { //its someone else
+                onRoundDefender(g); //pretend its a defender
+            }
         } else { //still looking for the flag
             if (!paths.containsKey(g.getId())) { //gotta generate the path to the flag!
                 initPath(g, g.getGame().getFlagLocation(thatTeam));
@@ -92,8 +110,17 @@ public class AggressiveOffenseController implements GolemController {
                 if (g.getLocation().equals(g.getGame().getFlagLocation(thatTeam))) { //reached flag
                     System.out.println(g.getId() + " has picked up the flag... it thinks. " + g.isHoldingFlag());
                     golemWithFlag = g.getId();
+                    paths.clear();
+                    break;
                 }
-                g.move(paths.get(g.getId()).pollFirst());
+                Direction d = paths.get(g.getId()).pollFirst();
+                if (g.canMove(d)) g.move(d);
+                else {
+                    /*paths.get(g.getId()).addFirst(d);
+                    break;
+                    */
+                    initPath(g, g.getGame().getFlagLocation(thatTeam));
+                }
             }
         }
     }
@@ -107,17 +134,24 @@ public class AggressiveOffenseController implements GolemController {
         while (!frontier.isEmpty()) {
             Point current = frontier.poll();
 
-            //if (current.equals(end)) break;
+            if (current.equals(end)) break;
 
             Arrays.stream(Direction.values())
                     .filter(d -> current.in(d).inBounds(0, g.getGame().getMapWidth(), 0, g.getGame().getMapHeight()))
                     .map(d -> current.in(d))
                     .filter(p -> g.getGame().getTypeAt(p) != TileType.WALL)
+                    .filter(p -> {
+                        for (GolemInfo gi : g.search()) {
+                            if (gi.getLocation().equals(p)) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    })
                     .forEach(next -> {
                         if (!cameFrom.containsKey(next)) {
                             frontier.add(next);
                             cameFrom.put(next, current);
-                            System.out.println("putting " + next + "into cameFrom. End is " + end);
                         }
                     });
         }
@@ -126,14 +160,13 @@ public class AggressiveOffenseController implements GolemController {
         List<Point> path = new ArrayList<>();
         path.add(current);
         while (!current.equals(g.getLocation())) {
-            System.out.println("Current: " + current + " cameFrom[current] = " + cameFrom.get(current));
             current = cameFrom.get(current);
             path.add(current);
         }
         Collections.reverse(path);
         LinkedList<Direction> dirpath = new LinkedList<>();
         for (int i = 0; i < path.size() - 1; i++) {
-            Direction d = Direction.between(path.get(i), path.get(i+1));
+            Direction d = Direction.between(path.get(i), path.get(i + 1));
             dirpath.add(d);
         }
         paths.put(g.getId(), dirpath);

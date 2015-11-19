@@ -36,7 +36,6 @@ public class CFMap {
 
         golemMap = new CFGolem[map.length][map[0].length];
 
-
         name = n;
         author = a;
     }
@@ -142,13 +141,17 @@ public class CFMap {
                 after.getY() < 0 || after.getY() >= height) {
             return false;
         }
-        if (containsGolem(after)) return false;
+        if (containsGolem(after)) {
+            return false;
+        }
         if (getTile(after) == null) return true;
-        if (!(getTile(after) instanceof GolemHabitat)) return false;
+        if (getTile(after).getTileType() == TileType.EMPTY) return true;
+        if (!(getTile(after) instanceof GolemHabitat)) {
+            return false;
+        }
         if (!((GolemHabitat)getTile(after)).canGolemEnter(g)) {
             return false;
         }
-
 
         return true;
     }

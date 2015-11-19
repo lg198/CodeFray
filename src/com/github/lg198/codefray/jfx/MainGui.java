@@ -17,7 +17,7 @@ public class MainGui {
 
     private CFGame game;
     public OptionsPanel panel;
-    private GameBoard board;
+    public GameBoard board;
     private boolean broadcast = false;
     public BroadcastPanel bpanel;
 

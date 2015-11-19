@@ -253,6 +253,13 @@ public class GameBoard {
         }
     }
 
+    public void fillCell(Point p, Color c) {
+        translateToCell(p, true);
+        gc().setFill(c);
+        gc().fillRect(0, 0, gridSize, gridSize);
+        gc().restore();
+    }
+
     private void renderCell(Point p) {
         int mt = game.getMapTileAt(p);
         if (mt == 0) {
